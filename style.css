@@ -1,62 +1,44 @@
-/* ═══ הגדרות בסיס ═══ */
 :root {
   --bg: #02040a;
   --panel: #0c1220;
   --accent: #00f0ff;
-  --text: #ffffff;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background-color: var(--bg) !important; /* הכרחי כדי למנוע דף לבן */
-  color: var(--text);
+  background-color: var(--bg) !important;
+  color: #fff;
   font-family: 'Heebo', sans-serif;
   direction: rtl;
   min-height: 100vh;
 }
 
-/* ═══ פריסת האתר ═══ */
-.app-shell { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg); }
-
-.main-header {
-  background: var(--panel);
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--accent);
-}
+/* צמצום רווחים קיצוני לבקשתך */
+.content-area { padding: 5px !important; }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 5px; /* צמצום הרווחים שסימנת באדום */
-  padding: 5px;
+  grid-template-columns: 380px 1fr !important;
+  gap: 5px !important; /* סגירת ה"שטחים האדומים" */
 }
 
-/* ═══ כרטיסי משחק (גופן ענק) ═══ */
 .match-card {
   background: rgba(255, 255, 255, 0.05);
-  margin-bottom: 8px;
-  padding: 15px;
+  padding: 12px !important;
+  margin-bottom: 6px !important;
   border-radius: 10px;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
 }
-
-.match-card:hover { border-color: var(--accent); }
 
 .team-name {
-  font-size: 1.8rem !important; /* גופן ענק לקבוצות */
-  font-weight: 900;
+  font-size: 1.8rem !important; /* גופן ענק וברור */
+  font-weight: 900 !important;
   display: block;
   line-height: 1.1;
-  margin: 5px 0;
+  margin: 4px 0;
 }
 
-.card-league { color: var(--accent); font-weight: 700; font-size: 1rem; margin-bottom: 5px; }
-
-/* ═══ פאנל ניתוח ═══ */
-.glass { background: var(--panel); border-radius: 12px; padding: 20px; border: 1px solid var(--accent); }
-.huge-title { font-size: 3rem !important; font-weight: 900; color: var(--accent); margin-bottom: 20px; }
+.card-league { font-size: 1rem; color: var(--accent); font-weight: 700; }
+.glass { background: var(--panel); border-radius: 12px; padding: 15px; border: 1px solid var(--accent); }
