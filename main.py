@@ -9,23 +9,23 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 RAPIDAPI_KEY = "e3c45d2ba2msh0a6788ca494b687p1e2806jsn82e3d3d003c1"
 
 @app.get("/api/matches/{sport}")
-def get_data(sport: str):
-    is_fb = sport == "football"
-    host = "free-api-live-football-data.p.rapidapi.com" if is_fb else "nba-smart-bets-api.p.rapidapi.com"
-    headers = {"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": host}
+def get_winner_data(sport: str):
+    headers = {
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": "free-api-live-football-data.p.rapidapi.com" if sport == "football" else "nba-smart-bets-api.p.rapidapi.com"
+    }
     
     all_results = []
-    # סריקה מהירה של 5 ימים קדימה
+    # סריקה של 5 ימים קדימה למהירות מקסימלית
     for i in range(5):
         date_str = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
-        url = f"https://{host}/football-get-fixtures-by-date" if is_fb else f"https://{host}/consistent_bets.json"
+        url = f"https://{headers['x-rapidapi-host']}/football-get-fixtures-by-date" if sport == "football" else f"https://{headers['x-rapidapi-host']}/consistent_bets.json"
         
         try:
-            res = requests.get(url, headers=headers, params={"date": date_str} if is_fb else {}, timeout=10)
+            res = requests.get(url, headers=headers, params={"date": date_str} if sport == "football" else {}, timeout=10)
             data = res.json()
-            # NBA מחזיר רשימה [], כדורגל מחזיר אובייקט עם 'response'
             items = data if isinstance(data, list) else data.get('response', [])
             all_results.extend(items)
-            if not is_fb: break # ה-NBA מחזיר הכל במכה
+            if sport == "basketball": break # NBA מחזיר הכל במכה
         except: continue
     return all_results
