@@ -1,31 +1,41 @@
-/* שינויים לבקשתך: הגדלת גופן וצמצום רווחים */
+/* הגדלת גופן וצמצום רווחים */
 .dashboard-grid {
-    grid-template-columns: 320px 1fr !important; /* צמצום עמודת הרשימה */
-    gap: 8px !important; /* צמצום המרווח בין העמודות */
+    grid-template-columns: 330px 1fr !important; /* צמצום עמודת הרשימה */
+    gap: 8px !important;
 }
 
 .match-card {
-    padding: 10px !important;
-    margin-bottom: 6px !important;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .team-name {
     font-size: 1.3rem !important; /* גופן גדול מאוד לקבוצות */
-    font-weight: 900 !important;
-    display: block; 
-    margin-bottom: 4px;
+    font-weight: 800 !important;
+    display: block;
+    margin: 4px 0;
+    line-height: 1.2;
+}
+
+.card-league {
+    font-size: 0.9rem !important;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .match-score {
-    font-size: 1.5rem !important; /* גופן תוצאה בולט */
-    color: var(--accent);
-    margin-top: 10px;
-    display: block;
-    text-align: left;
+    font-size: 1.1rem !important;
+    font-weight: bold;
+    color: var(--dim);
 }
 
-.league-name {
-    font-size: 0.9rem !important; /* הגדלת שם הליגה */
-    color: var(--dim);
-    margin-bottom: 8px;
+.match-time {
+    font-size: 0.95rem !important;
+    font-weight: 700;
+}
+
+.analysis-panel h2 {
+    font-size: 2.2rem !important; /* כותרת המשחק הנבחר */
 }
