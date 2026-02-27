@@ -1,44 +1,51 @@
 :root {
   --bg: #02040a;
   --panel: #0c1220;
-  --accent: #00f0ff;
+  --accent: #00f0ff; /* הטורקיז של SportIQ */
+  --text: #e8f4f8;
+  --border: rgba(0, 240, 255, 0.15);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background-color: var(--bg) !important;
-  color: #fff;
-  font-family: 'Heebo', sans-serif;
-  direction: rtl;
-  min-height: 100vh;
+body { 
+  background-color: var(--bg); 
+  color: var(--text); 
+  font-family: 'Heebo', sans-serif; 
+  direction: rtl; 
+  height: 100vh; 
+  overflow: hidden; 
 }
 
-/* צמצום רווחים קיצוני לבקשתך */
-.content-area { padding: 5px !important; }
+/* פריסת ה-Ultra המקצועית */
+.app-shell { display: flex; height: 100vh; }
+.content-area { flex: 1; display: flex; flex-direction: column; padding: 10px; }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 380px 1fr !important;
-  gap: 5px !important; /* סגירת ה"שטחים האדומים" */
+/* כותרת עליונה */
+.main-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px; background: var(--panel); border-bottom: 2px solid var(--accent);
+  margin-bottom: 10px; border-radius: 12px;
 }
+.pill {
+  background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border);
+  padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: 800; font-size: 1.2rem;
+}
+.pill.active { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
 
+/* גריד - רשימה מימין, ניתוח משמאל */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 380px; gap: 10px; flex: 1; overflow: hidden; }
+
+/* רשימת משחקים (צד ימין) */
+.list-panel { overflow-y: auto; padding-left: 5px; }
 .match-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 12px !important;
-  margin-bottom: 6px !important;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.03); padding: 15px; margin-bottom: 8px;
+  border-radius: 12px; cursor: pointer; border: 1px solid var(--border);
 }
+.match-card:hover { background: rgba(0, 240, 255, 0.05); }
+.team-name { font-size: 1.8rem !important; font-weight: 900; display: block; line-height: 1.1; }
+.league-tag { font-size: 1rem; color: var(--accent); margin-bottom: 5px; font-weight: 700; }
 
-.team-name {
-  font-size: 1.8rem !important; /* גופן ענק וברור */
-  font-weight: 900 !important;
-  display: block;
-  line-height: 1.1;
-  margin: 4px 0;
-}
-
-.card-league { font-size: 1rem; color: var(--accent); font-weight: 700; }
-.glass { background: var(--panel); border-radius: 12px; padding: 15px; border: 1px solid var(--accent); }
+/* פאנל ניתוח (צד שמאל) */
+.analysis-view { background: var(--panel); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+.huge-title { font-size: 2.8rem !important; font-weight: 900; color: var(--accent); margin-bottom: 20px; }
+.stat-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 15px; font-size: 1.3rem; }
