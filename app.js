@@ -2,24 +2,25 @@ const CONFIG = { apiUrl: 'https://football-recommendations.onrender.com/api' };
 const state = {
     matches: [],
     currentSport: 'football',
-    allowedLeagues: ['Ligat Ha\'al', 'Premier', 'La Liga', 'Ligue 1', 'NBA', 'Winner', 'Israel', 'Basketball']
+    allowedKeywords: ['ligat', 'israel', 'premier', 'la liga', 'ligue 1', 'nba', 'winner', 'champions']
 };
 
 async function fetchMatchesData() {
     const container = document.getElementById('matches-container');
-    container.innerHTML = '<p style="padding:20px; font-size:1.5rem;">סורק משחקים ל-5 ימים קרובים...</p>';
+    container.innerHTML = '<p style="font-size:1.5rem; padding:20px;">סורק משחקים מהשבוע הקרוב...</p>';
     
     try {
         const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}`);
         const data = await res.json();
         
+        // סינון חכם לפי מילות מפתח
         state.matches = data.filter(m => {
             const league = (m.league?.name || m.leagueName || m.Match || "").toLowerCase();
-            return state.allowedLeagues.some(l => league.includes(l.toLowerCase()));
+            return state.allowedKeywords.some(key => league.includes(key));
         });
         
         renderList();
-    } catch (e) { container.innerHTML = 'שגיאת API - וודא ששרת ה-Render פועל'; }
+    } catch (e) { container.innerHTML = 'שגיאת API - וודא ששרת ה-Render רץ'; }
 }
 
 function renderList() {
@@ -38,6 +39,7 @@ function renderList() {
     `).join('');
 }
 
+// מעבר בין ספורט
 document.querySelectorAll('.pill').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
