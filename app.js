@@ -1,51 +1,41 @@
-const App = {
-  // רשימת הליגות המאושרות מהקוד שלך
-  allowedLeagues: ['Champions League', 'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1', 'NBA'],
+const state = {
+    matches: [],
+    currentSport: 'football',
+    allowedLeagues: ['Champions League', 'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'NBA']
+};
 
-  async refresh() {
-    this.setStatus('SYNCING', false);
-    this.matches = [];
+async function fetchMatchesData() {
+    const container = document.getElementById('matches-container');
+    container.innerHTML = '<p class="muted">סורק משחקים ל-5 ימים הקרובים...</p>';
     
+    state.matches = [];
+    const today = new Date();
+
     try {
-      // 1. קודם כל מנסים להביא משחקי לייב
-      const liveData = await fetch(`${CONFIG.apiUrl}/matches/${this.sport}`).then(r => r.json());
-      if (liveData && liveData.length > 0) {
-          this.processAndAddMatches(liveData, true);
-      }
+        // לולאה ל-5 הימים הקרובים (כמו בווינר)
+        for (let i = 0; i <= 5; i++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
 
-      // 2. מביאים שבוע קדימה (7 ימים)
-      const today = new Date();
-      for (let i = 0; i <= 7; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() + i);
-        const dateStr = d.toISOString().split('T')[0];
-        
-        const scheduledData = await fetch(`${CONFIG.apiUrl}/matches/${this.sport}?date=${dateStr}`).then(r => r.json());
-        if (scheduledData && scheduledData.length > 0) {
-            this.processAndAddMatches(scheduledData, false);
-        }
-      }
-      
-      this.renderList();
-      this.setStatus('SYSTEM ONLINE', true);
-    } catch(err) {
-      this.setStatus('API ERROR', false);
-    }
-  },
-
-  processAndAddMatches(events, isLive) {
-    events.forEach(ev => {
-        const leagueName = ev.league?.name || ev.tournament?.name || "";
-        // סינון ליגות: רק מה שמופיע ברשימת המאושרות
-        const isAllowed = this.allowedLeagues.some(l => leagueName.includes(l));
-        
-        if (isAllowed) {
-            const processed = this.processEvent(ev, isLive);
-            // מניעת כפילויות
-            if (!this.matches.find(m => m.id === processed.id)) {
-                this.matches.push(processed);
+            const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}?date=${dateStr}`);
+            const data = await res.json();
+            
+            if (Array.isArray(data)) {
+                data.forEach(m => {
+                    const league = m.league?.name || m.leagueName || "";
+                    // סינון ליגות מאושרות בלבד
+                    if (state.allowedLeagues.some(al => league.includes(al))) {
+                        // הוספה רק אם המשחק טרם הסתיים
+                        if (m.fixture?.status?.short !== 'FT') {
+                            state.matches.push(this.formatMatch(m));
+                        }
+                    }
+                });
             }
         }
-    });
-  }
-};
+        renderMatchList();
+    } catch (error) {
+        console.error("שגיאה במשיכת משחקים עתידיים");
+    }
+}
