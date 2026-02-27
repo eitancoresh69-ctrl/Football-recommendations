@@ -22,13 +22,13 @@ def get_winner_data(sport: str):
         url = f"https://{headers['x-rapidapi-host']}/football-get-fixtures-by-date" if sport == "football" else f"https://{headers['x-rapidapi-host']}/consistent_bets.json"
         
         try:
-            res = requests.get(url, headers=headers, params={"date": date_str} if sport == "football" else {}, timeout=8)
-            raw = res.json()
-            # NBA מחזיר רשימה ישירה [], כדורגל מחזיר אובייקט עם 'response'
-            if isinstance(raw, list):
-                all_results.extend(raw)
+            res = requests.get(url, headers=headers, params={"date": date_str} if sport == "football" else {}, timeout=10)
+            data = res.json()
+            # NBA מחזיר רשימה [], כדורגל מחזיר אובייקט עם 'response'
+            if isinstance(data, list):
+                all_results.extend(data)
                 if sport == "basketball": break
             else:
-                all_results.extend(raw.get('response', []))
+                all_results.extend(data.get('response', []))
         except: continue
     return all_results
