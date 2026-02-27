@@ -1,51 +1,24 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>SportIQ Ultra Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-<div class="app-shell">
-    <main class="content-area">
-        <header class="main-header glass" style="margin: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h1>SportIQ <span>Ultra Pro</span></h1>
-                <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
-            </div>
-            <div class="filter-pills" id="sport-nav">
-                <button class="pill active" data-sport="football">⚽ כדורגל</button>
-                <button class="pill" data-sport="basketball">🏀 NBA</button>
-            </div>
-        </header>
-
-        <div class="dashboard-grid">
-            <section class="list-panel glass">
-                <h3>ראדאר משחקים</h3>
-                <div id="matches-container"></div>
-            </section>
-
-            <section class="analysis-panel glass">
-                <div id="analysis-content" style="display:none;">
-                    <h2 id="match-title"></h2>
-                    <div id="ai-predictions" class="odds-grid"></div>
-                    
-                    <div class="deep-analysis">
-                        <h4>📊 נתונים מתקדמים</h4>
-                        <div id="deep-stats-grid" class="stat-grid"></div>
-                        
-                        <h4 style="margin-top:20px;">🚑 פצועים ומורחקים</h4>
-                        <div id="missing-players-list"></div>
-                        
-                        <h4 style="margin-top:20px;">⚔️ היסטוריית מפגשים (H2H)</h4>
-                        <div id="h2h-list"></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
+<div class="deep-analysis-grid">
+    <div class="stats-section glass">
+        <h4>📊 ממוצעים למשחק</h4>
+        <div id="stat-averages"></div>
+    </div>
+    
+    <div class="h2h-section glass">
+        <h4>⚔️ 5 מפגשים אחרונים</h4>
+        <div id="h2h-results"></div>
+    </div>
 </div>
-<script src="app.js"></script>
-</body>
-</html>
+
+<div class="team-forms glass">
+    <h4>📈 כושר נוכחי (5 משחקים אחרונים)</h4>
+    <div style="display: flex; justify-content: space-around;">
+        <div id="home-form"></div>
+        <div id="away-form"></div>
+    </div>
+</div>
+
+<div class="missing-section glass">
+    <h4>🚑 חיסורים משמעותיים</h4>
+    <div id="missing-list-detail"></div>
+</div>
