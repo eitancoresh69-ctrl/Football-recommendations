@@ -7,30 +7,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="app-shell">
-    <header class="main-header">
-        <h1>SportIQ <span style="color:var(--accent)">ULTRA</span></h1>
-        <div id="sport-nav">
-            <button class="pill active" onclick="changeSport('football')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">⚽ כדורגל (ישראל+אירופה)</button>
-            <button class="pill" onclick="changeSport('basketball')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">🏀 NBA + ליגת העל</button>
-        </div>
-    </header>
-
-    <div class="dashboard-grid">
-        <section class="glass">
-            <h3 style="margin-bottom:15px;">ראדאר משחקים (5 ימים קדימה)</h3>
-            <div id="matches-container"></div>
-        </section>
-
-        <section class="glass">
-            <div id="analysis-content">
-                <h2 id="match-title" class="huge-title">בחר משחק מהרשימה</h2>
-                <div id="ai-verdict" style="font-size:1.5rem; background:rgba(0,0,0,0.3); padding:20px; border-radius:10px;"></div>
+    <div class="app-shell">
+        <header class="main-header glass">
+            <h1>SportIQ <span style="color:var(--accent)">ULTRA</span></h1>
+            <div id="sport-nav">
+                <button onclick="changeSport('football')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">⚽ כדורגל (ישראל+אירופה)</button>
+                <button onclick="changeSport('basketball')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">🏀 NBA + ליגת העל</button>
             </div>
-        </section>
-    </div>
-</div>
+        </header>
 
-<script src="app.js"></script>
+        <div class="dashboard-grid">
+            <section class="glass">
+                <h3 style="margin-bottom:15px;">ראדאר משחקים (5 ימים)</h3>
+                <div id="matches-container"></div>
+            </section>
+            <section class="glass">
+                <h2 id="match-title" style="font-size:2.8rem; font-weight:900; color:var(--accent);">בחר משחק</h2>
+                <div id="ai-verdict" style="font-size:1.4rem; margin-top:20px;"></div>
+            </section>
+        </div>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
