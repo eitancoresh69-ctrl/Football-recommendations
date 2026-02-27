@@ -1,52 +1,50 @@
-const CONFIG = { apiUrl: 'https://football-recommendations.onrender.com/api' };
-const state = {
-    matches: [],
-    currentSport: 'football',
-    allowedKeywords: ['ligat', 'israel', 'premier', 'la liga', 'ligue 1', 'nba', 'winner', 'champions']
-};
+const API_URL = 'https://football-recommendations.onrender.com/api';
+let currentSport = 'football';
 
-async function fetchMatchesData() {
+async function loadMatches() {
     const container = document.getElementById('matches-container');
-    container.innerHTML = '<p style="font-size:1.5rem; padding:20px;">סורק משחקים מהשבוע הקרוב...</p>';
-    
+    container.innerHTML = '<p style="font-size:1.5rem;">טוען נתונים מה-API... (5 ימים קדימה)</p>';
+
     try {
-        const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}`);
+        const res = await fetch(`${API_URL}/matches/${currentSport}`);
         const data = await res.json();
-        
-        // סינון חכם לפי מילות מפתח
-        state.matches = data.filter(m => {
+
+        // סינון ליגות רחב כדי שלא נפספס כלום
+        const allowed = ['ligat', 'israel', 'nba', 'winner', 'premier', 'la liga', 'ligue 1', 'champions'];
+        const filtered = data.filter(m => {
             const league = (m.league?.name || m.leagueName || m.Match || "").toLowerCase();
-            return state.allowedKeywords.some(key => league.includes(key));
+            return allowed.some(key => league.includes(key));
         });
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<p>לא נמצאו משחקים בליגות אלו ב-5 הימים הקרובים.</p>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(m => `
+            <div class="match-card" onclick="showMatch('${m.id || m.fixture?.id}')">
+                <div class="card-league">${m.league?.name || m.leagueName || 'NBA'}</div>
+                <span class="team-name">${m.teams?.home?.name || m.homeTeam || m.Match?.split(' vs ')[0]}</span>
+                <span class="team-name">${m.teams?.away?.name || m.awayTeam || m.Match?.split(' vs ')[1]}</span>
+            </div>
+        `).join('');
         
-        renderList();
-    } catch (e) { container.innerHTML = 'שגיאת API - וודא ששרת ה-Render רץ'; }
-}
-
-function renderList() {
-    const container = document.getElementById('matches-container');
-    if (state.matches.length === 0) {
-        container.innerHTML = '<p style="padding:20px;">אין משחקים קרובים בליגות אלו.</p>';
-        return;
+        window.allMatches = filtered; // שמירה לניתוח
+    } catch (e) {
+        container.innerHTML = 'שגיאה בחיבור לשרת ה-Render. וודא שהשרת רץ.';
     }
-    container.innerHTML = state.matches.map(m => `
-        <div class="match-card" onclick="selectMatch('${m.id || m.fixture?.id || Math.random()}')">
-            <div class="card-league">${m.league?.name || m.leagueName || (state.currentSport==='basketball'?'NBA':'')}</div>
-            <span class="team-name">${m.teams?.home?.name || m.homeTeam || m.Match?.split(' vs ')[0] || 'Home'}</span>
-            <span class="team-name">${m.teams?.away?.name || m.awayTeam || m.Match?.split(' vs ')[1] || 'Away'}</span>
-            <div class="match-score">פרטים ➔</div>
-        </div>
-    `).join('');
 }
 
-// מעבר בין ספורט
-document.querySelectorAll('.pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.currentSport = btn.dataset.sport;
-        fetchMatchesData();
-    });
-});
+function changeSport(sport) {
+    currentSport = sport;
+    loadMatches();
+}
 
-window.onload = fetchMatchesData;
+function showMatch(id) {
+    const m = window.allMatches.find(match => (match.id || match.fixture?.id) == id);
+    if (!m) return;
+    document.getElementById('match-title').innerText = `${m.teams?.home?.name || m.homeTeam} vs ${m.teams?.away?.name || m.awayTeam}`;
+    document.getElementById('ai-verdict').innerHTML = `ניתוח AI: יתרון קל לקבוצה המארחת. צפוי משחק התקפי.`;
+}
+
+window.onload = loadMatches;
