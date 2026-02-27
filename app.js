@@ -1,61 +1,55 @@
-const API_URL = 'https://football-recommendations.onrender.com/api';
-let currentSport = 'football';
+const CONFIG = {
+    apiUrl: 'https://football-recommendations.onrender.com/api'
+};
 
-async function refreshData() {
-    const list = document.getElementById('match-list');
-    list.innerHTML = '<p style="font-size:1.5rem; color:var(--accent); padding:20px;">טוען נתוני API (אנגלית לדיוק מקסימלי)...</p>';
+const state = {
+    matches: [],
+    currentSport: 'football',
+    selectedMatchId: null,
+    // הליגות שביקשת
+    allowedLeagues: [
+        'Ligat Ha\'al', 'Premier League', 'La Liga', 'Ligue 1', 
+        'Champions League', 'NBA', 'Winner League', 'Israel'
+    ]
+};
+
+async function fetchMatchesData() {
+    const statusEl = document.getElementById('system-status');
+    const container = document.getElementById('matches-container');
+    container.innerHTML = '<p class="muted" style="font-size:1.2rem;">סורק משחקים ל-7 ימים קרובים...</p>';
 
     try {
-        const res = await fetch(`${API_URL}/matches/${currentSport}`);
+        const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}`);
         const data = await res.json();
-
-        // סינון ליגות באנגלית - הדרך הבטוחה ביותר
-        const keywords = ['ligat', 'israel', 'nba', 'winner', 'premier', 'la liga', 'ligue 1', 'champions', 'euroleague'];
-        const filtered = data.filter(m => {
-            const league = (m.league?.name || m.leagueName || m.Match || "").toLowerCase();
-            return keywords.some(k => league.includes(k));
+        
+        // סינון רק לפי הליגות שביקשת
+        state.matches = data.filter(m => {
+            const league = m.league?.name || m.leagueName || "";
+            return state.allowedLeagues.some(l => league.toLowerCase().includes(l.toLowerCase()));
         });
 
-        if (filtered.length === 0) {
-            list.innerHTML = '<p style="padding:20px;">לא נמצאו משחקים ב-5 הימים הקרובים. בדוק את השרת ב-Render.</p>';
-            return;
-        }
+        renderMatchList();
+        statusEl.innerText = 'SYSTEM ONLINE';
+    } catch (error) {
+        statusEl.innerText = 'CONNECTION ERROR';
+    }
+}
 
-        list.innerHTML = filtered.map(m => `
-            <div class="match-card" onclick="analyzeMatch('${m.id || m.fixture?.id}')">
-                <div class="league-tag">${m.league?.name || m.leagueName || 'NBA/EURO'}</div>
-                <span class="team-name">${m.teams?.home?.name || m.homeTeam || m.Match?.split(' vs ')[0]}</span>
-                <span class="team-name">${m.teams?.away?.name || m.awayTeam || m.Match?.split(' vs ')[1]}</span>
+function renderMatchList() {
+    const container = document.getElementById('matches-container');
+    if (state.matches.length === 0) {
+        container.innerHTML = '<p class="muted">אין משחקים קרובים בליגות אלו.</p>';
+        return;
+    }
+
+    container.innerHTML = state.matches.map(m => `
+        <div class="match-card" onclick="selectMatch('${m.id || m.fixture?.id}')">
+            <div class="card-league">${m.league?.name || m.leagueName}</div>
+            <div class="card-teams">
+                <span class="team-name">${m.teams?.home?.name || m.homeTeam}</span>
+                <span class="team-name">${m.teams?.away?.name || m.awayTeam}</span>
             </div>
-        `).join('');
-        window.currentData = filtered;
-    } catch (e) { list.innerHTML = 'שגיאת חיבור לשרת ה-Render.'; }
-}
-
-function analyzeMatch(id) {
-    const m = window.currentData.find(match => (match.id || match.fixture?.id) == id);
-    if (!m) return;
-    
-    document.getElementById('m-title').innerText = `${m.teams?.home?.name || m.homeTeam} נגד ${m.teams?.away?.name || m.awayTeam}`;
-    
-    // ניתוח בעברית לבקשתך
-    document.getElementById('ai-text').innerHTML = `
-        <div class="ai-box">
-            <b>🤖 ניתוח AI SportIQ (עברית):</b><br><br>
-            הקבוצה המארחת מציגה יתרון סטטיסטי בשליטה בכדור. נתוני ה-H2H מראים נטייה למשחק התקפי.<br><br>
-            📊 <b>נתונים חזויים:</b><br>
-            • קרנות: ${Math.floor(Math.random()*5)+7}<br>
-            • מומנטום: חיובי לקבוצת הבית<br>
-            • חיסורים: לא דווח על פציעות משמעותיות בדקות האחרונות.
+            <span class="match-score">${m.score || 'VS'}</span>
         </div>
-    `;
+    `).join('');
 }
-
-function switchSport(s) {
-    currentSport = s;
-    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    refreshData();
-}
-
-window.onload = refreshData;
