@@ -1,6 +1,6 @@
-// תצורת האפליקציה - מצפה לקבל נתונים משרת ה-Backend שלך, לא ישירות מ-RapidAPI
+// תצורת האפליקציה - מתחבר לשרת ה-Render החדש שלך באוויר!
 const CONFIG = {
-    // apiUrl: 'http://localhost:5000/api', // כאן יהיה השרת העתידי שלך
+    apiUrl: 'https://football-recommendations.onrender.com/api',
     pollInterval: 30000 
 };
 
@@ -15,14 +15,22 @@ const state = {
 async function initApp() {
     startClock();
     setupEventListeners();
+    
+    // משיכת נתונים ראשונית כשהאתר עולה
+    await fetchMatchesData();
+    
+    // רענון אוטומטי כל 30 שניות
+    setInterval(fetchMatchesData, CONFIG.pollInterval);
+}
+
+// קריאה לשרת הפייתון האמיתי שלנו בענן!
 async function fetchMatchesData() {
     const statusEl = document.getElementById('system-status');
     statusEl.innerText = 'SYNCING...';
     statusEl.classList.remove('error');
 
     try {
-        // קריאה לשרת הפייתון האמיתי שלנו!
-        const res = await fetch('http://127.0.0.1:8000/api/matches/live');
+        const res = await fetch(`${CONFIG.apiUrl}/matches/live`);
         const data = await res.json();
         
         state.matches = data; 
@@ -33,9 +41,6 @@ async function fetchMatchesData() {
         statusEl.innerText = 'CONNECTION ERROR';
         statusEl.classList.add('error');
     }
-}    
-    // רענון אוטומטי
-    setInterval(fetchMatchesData, CONFIG.pollInterval);
 }
 
 // מאזינים לאירועים
@@ -64,24 +69,6 @@ function setupEventListeners() {
     });
 
     document.getElementById('tg-share-btn').addEventListener('click', sendToTelegram);
-}
-
-// פונקציית דמי (Mock) עד שתבנה את השרת
-async function fetchMatchesData() {
-    const statusEl = document.getElementById('system-status');
-    statusEl.innerText = 'SYNCING...';
-    statusEl.classList.remove('error');
-
-    try {
-        // בגרסה האמיתית: const res = await fetch(`${CONFIG.apiUrl}/matches/live`);
-        // כרגע נייצר נתוני דמי ברמה גבוהה כדי לדמות שרת
-        state.matches = generateMockServerData(); 
-        renderMatchList();
-        statusEl.innerText = 'SYSTEM ONLINE';
-    } catch (error) {
-        statusEl.innerText = 'CONNECTION ERROR';
-        statusEl.classList.add('error');
-    }
 }
 
 // רינדור רשימת המשחקים
@@ -179,22 +166,6 @@ function startClock() {
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString('he-IL');
     }, 1000);
-}
-
-// נתוני דמי לדוגמה - מדמה את מה שהשרת יחזיר
-function generateMockServerData() {
-    return [
-        {
-            id: 'm1', leagueId: 'champions', leagueName: 'ליגת האלופות',
-            homeTeam: 'ריאל מדריד', awayTeam: 'מנצ\'סטר סיטי', score: '1 - 1', minute: 65,
-            xG: { home: 1.2, away: 1.8 }, possession: { home: 42, away: 58 },
-            shotsOnTarget: { home: 4, away: 7 }, dangerousAttacks: { home: 45, away: 60 },
-            winProbs: { home: 25, draw: 40, away: 35 }, aiConfidence: 88,
-            verdict: "משחק צמוד מאוד. מנצ'סטר סיטי שולטת ב-xG, יש ערך (Value) בהימור על <strong>תיקו או ניצחון חוץ (X2)</strong>.",
-            momentum: { home: [30, 40, 20, 60, 50, 40], away: [50, 60, 70, 40, 60, 80] },
-            injuries: [{ player: 'קווין דה בראונה', team: 'סיטי', reason: 'פציעה בשריר הירך (בספק)' }]
-        }
-    ];
 }
 
 // הפעלה
