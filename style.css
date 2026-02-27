@@ -1,42 +1,39 @@
-/* הגדלת גופנים כללית וצמצום רווחים */
+/* הגדלת גופן וצמצום מרווחים - לא לגעת בשאר העיצוב */
 .dashboard-grid {
-    grid-template-columns: 340px 1fr; /* הרחבת עמודת הרשימה מעט */
-    gap: 8px; /* צמצום המרווח בין העמודות */
+    grid-template-columns: 320px 1fr !important; /* צמצום עמודת הראדאר */
+    gap: 10px !important; /* צמצום המרווח בין העמודות */
 }
 
 .match-card {
-    padding: 10px; /* צמצום רווח פנימי */
-    margin-bottom: 6px;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
 }
 
 .team-name {
-    font-size: 1.1rem !important; /* גופן גדול ב-30% */
-    font-weight: 800;
-    white-space: normal; /* מאפשר ירידת שורה אם השם ארוך */
-    line-height: 1.2;
-}
-
-.score-box {
-    font-size: 1.3rem !important; /* גופן תוצאה גדול מאוד */
-    min-width: 60px;
-    padding: 6px;
+    font-size: 1.25rem !important; /* גופן גדול מאוד */
+    font-weight: 900 !important;
+    display: block; /* ירידת שורה כדי להרוויח מקום */
     margin: 4px 0;
 }
 
-.card-league {
-    font-size: 0.85rem !important; /* הגדלת שם הליגה */
+.match-score {
+    font-size: 1.4rem !important;
     color: var(--accent);
+    background: rgba(0,0,0,0.5);
+    padding: 5px 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+    display: inline-block;
+}
+
+.league-name {
+    font-size: 0.9rem !important;
+    letter-spacing: 1px;
     margin-bottom: 10px;
 }
 
-.card-time, .card-prob {
-    font-size: 0.85rem !important; /* הגדלת נתוני הזמן והסתברות */
-}
-
-/* סידור הנתונים אחד מתחת לשני כדי להרוויח מקום לגופן גדול */
-.card-teams {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
+.match-time {
+    font-size: 0.95rem !important;
+    font-weight: bold;
+    color: var(--accent);
 }
