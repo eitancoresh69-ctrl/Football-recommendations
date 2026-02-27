@@ -1,49 +1,155 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>SportIQ Ultra Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SportIQ ULTRA — AI Betting Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="app-shell">
-    <aside class="sidebar"><div class="logo">SIQ</div></aside>
-    <main class="content-area">
-        <header class="main-header">
-            <div>
-                <h1>SportIQ <span>Ultra Pro</span></h1>
-                <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
-            </div>
-            <div class="filter-pills" id="sport-nav">
-                <button class="pill active" data-sport="football">⚽ כדורגל</button>
-                <button class="pill" data-sport="basketball">🏀 NBA</button>
-            </div>
-        </header>
 
-        <div class="dashboard-grid">
-            <section class="list-panel glass">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                    <h3>ראדאר משחקים</h3>
-                    <button id="refresh-btn" class="pill" style="font-size:0.8rem;">סנכרן 🔄</button>
-                </div>
-                <div id="matches-container"></div>
-            </section>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">S<br>I<br>Q</div>
+    <button class="nav-icon active" id="nav-soccer"      onclick="App.setSport('soccer')"     title="כדורגל">⚽</button>
+    <button class="nav-icon"        id="nav-basketball"  onclick="App.setSport('basketball')" title="כדורסל">🏀</button>
+    <div class="sidebar-spacer"></div>
+    <div class="live-dot" id="live-indicator"></div>
+  </aside>
 
-            <section class="analysis-panel glass">
-                <div id="analysis-content" style="display:none;">
-                    <h2 id="match-title"></h2>
-                    <div class="stat-grid" id="main-stats"></div>
-                    <div class="glass" style="background:rgba(0,242,255,0.05); margin-bottom:20px;">
-                        <h4>🧠 ניתוח AI Value Bet</h4>
-                        <p id="ai-verdict-text"></p>
-                    </div>
-                    <h4>⚔️ היסטוריית מפגשים (H2H)</h4>
-                    <div id="h2h-results"></div>
-                </div>
-            </section>
+  <!-- MAIN -->
+  <main class="content-area">
+
+    <!-- HEADER -->
+    <header class="main-header">
+      <div class="header-brand">
+        <h1>SportIQ <span>ULTRA</span></h1>
+        <div class="status-pills">
+          <span class="status-pill pill-api" id="api-status">CONNECTING</span>
+          <span class="status-pill pill-live" id="mode-badge">LIVE</span>
+          <span class="clock-display" id="clock">00:00:00</span>
         </div>
-    </main>
-</div>
+      </div>
+      <div class="sport-tabs">
+        <button class="sport-tab active" id="tab-soccer"      onclick="App.setSport('soccer')">⚽ כדורגל</button>
+        <button class="sport-tab"        id="tab-basketball"  onclick="App.setSport('basketball')">🏀 כדורסל</button>
+      </div>
+    </header>
+
+    <!-- GRID -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT: MATCH LIST -->
+      <section class="list-panel">
+        <div class="panel-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <h3 id="list-title">משחקים בשידור חי</h3>
+            <span class="match-type-badge badge-live" id="list-badge">LIVE</span>
+          </div>
+          <button class="sync-btn" onclick="App.refresh()">↻ רענן</button>
+        </div>
+        <div class="matches-scroll" id="matches-container">
+          <div class="loading-state"><div class="spinner"></div><span>טוען...</span></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: ANALYSIS -->
+      <section class="analysis-panel">
+        <div class="placeholder" id="placeholder">
+          <div class="placeholder-icon">📊</div>
+          <h3 style="color:var(--dim);font-size:0.95rem">מנוע AI Value Bet</h3>
+          <p>בחר משחק לניתוח מעמיק</p>
+        </div>
+
+        <div class="analysis-content" id="analysis-content" style="display:none">
+          <div class="analysis-top">
+            <div class="match-headline">
+              <h2 id="analysis-title">—</h2>
+              <div class="headline-meta">
+                <span class="status-pill pill-live"   id="analysis-time-badge">חי</span>
+                <span class="match-type-badge"        id="analysis-league-badge">—</span>
+              </div>
+            </div>
+            <div class="analysis-tabs">
+              <button class="tab-btn active" onclick="App.switchTab('overview',this)">📈 סקירה</button>
+              <button class="tab-btn"        onclick="App.switchTab('odds',this)">💰 יחסים</button>
+              <button class="tab-btn"        onclick="App.switchTab('h2h',this)">⚔️ H2H</button>
+              <button class="tab-btn"        onclick="App.switchTab('squad',this)">🩺 הרכב</button>
+            </div>
+          </div>
+
+          <div class="tab-body">
+
+            <!-- TAB: OVERVIEW -->
+            <div class="tab-content active" id="tab-overview">
+              <div class="stats-grid-3" id="main-stats"></div>
+              <div class="chart-section">
+                <div class="chart-title">⚡ מדד לחץ ומומנטום — זמן אמת</div>
+                <canvas id="momentumChart"></canvas>
+              </div>
+              <div class="stats-grid-2" id="extra-stats"></div>
+            </div>
+
+            <!-- TAB: ODDS / AI -->
+            <div class="tab-content" id="tab-odds">
+              <div class="section-title">יחסי שוק מחושבים</div>
+              <div class="odds-row" id="odds-display"></div>
+              <div class="ai-box">
+                <div class="ai-confidence">
+                  <span class="confidence-label">ביטחון</span>
+                  <div class="confidence-bar">
+                    <div class="confidence-fill" id="conf-fill" style="width:0%"></div>
+                  </div>
+                  <span class="confidence-pct" id="conf-pct">—</span>
+                </div>
+                <div class="ai-recommendation" id="ai-text">מחשב...</div>
+                <div class="kelly-row" id="kelly-info"></div>
+              </div>
+              <div class="section-title">השוואת ליגה</div>
+              <div class="stats-grid-3" id="league-compare"></div>
+              <button class="tg-btn" onclick="App.sendTelegram()">📱 שלח ניתוח מלא לטלגרם</button>
+            </div>
+
+            <!-- TAB: H2H -->
+            <div class="tab-content" id="tab-h2h">
+              <div class="section-title">ביצועי קבוצות — עונה נוכחית</div>
+              <div class="stats-grid-2" id="form-stats"></div>
+              <div class="section-title">מפגשים ישירים אחרונים</div>
+              <div class="h2h-list" id="h2h-list"></div>
+            </div>
+
+            <!-- TAB: SQUAD -->
+            <div class="tab-content" id="tab-squad">
+              <div class="stats-grid-2">
+                <div>
+                  <div class="section-title">🏠 חיסורי בית</div>
+                  <div class="player-list" id="home-players"></div>
+                </div>
+                <div>
+                  <div class="section-title">✈️ חיסורי חוץ</div>
+                  <div class="player-list" id="away-players"></div>
+                </div>
+              </div>
+              <div class="section-title" style="margin-top:16px">🟡 נבדלים ומשמעת</div>
+              <div class="stats-grid-3" id="discipline-stats"></div>
+            </div>
+
+          </div><!-- /tab-body -->
+        </div><!-- /analysis-content -->
+      </section>
+
+    </div><!-- /dashboard-grid -->
+  </main>
+</div><!-- /app-shell -->
+
+<div class="toast" id="toast"></div>
+
+<script src="api-service.js"></script>
+<script src="logic-engine.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
