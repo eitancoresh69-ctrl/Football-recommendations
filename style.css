@@ -1,29 +1,29 @@
-.nav-container {
+/* עיצוב ה-Pills בראש העמוד */
+.filter-pills {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 12px;
 }
 
-.nav-btn {
+.pill {
     background: rgba(255, 255, 255, 0.05);
-    color: white;
+    color: #94a3b8;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 12px;
-    border-radius: 10px;
+    padding: 8px 20px;
+    border-radius: 25px;
     cursor: pointer;
-    text-align: right;
     font-family: inherit;
-    transition: 0.3s;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.nav-btn.active {
-    background: var(--accent);
-    color: black;
-    font-weight: bold;
-    border-color: var(--accent);
+.pill.active {
+    background: #00f2ff; /* הצבע הכחול הזרחני מהעיצוב הקודם */
+    color: #000;
+    border-color: #00f2ff;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
 }
 
-.nav-btn:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.15);
+.pill:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
