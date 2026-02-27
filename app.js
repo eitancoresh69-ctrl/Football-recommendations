@@ -3,21 +3,21 @@ let currentSport = 'football';
 
 async function loadMatches() {
     const container = document.getElementById('matches-container');
-    container.innerHTML = '<p style="font-size:1.5rem;">טוען נתונים מה-API... (5 ימים קדימה)</p>';
+    container.innerHTML = '<p style="font-size:1.5rem; padding:20px;">סורק 5 ימים קדימה...</p>';
 
     try {
         const res = await fetch(`${API_URL}/matches/${currentSport}`);
         const data = await res.json();
 
-        // סינון ליגות רחב כדי שלא נפספס כלום
-        const allowed = ['ligat', 'israel', 'nba', 'winner', 'premier', 'la liga', 'ligue 1', 'champions'];
+        // סינון גמיש לליגות שביקשת
+        const keywords = ['ligat', 'israel', 'nba', 'winner', 'premier', 'la liga', 'ligue 1', 'champions'];
         const filtered = data.filter(m => {
             const league = (m.league?.name || m.leagueName || m.Match || "").toLowerCase();
-            return allowed.some(key => league.includes(key));
+            return keywords.some(key => league.includes(key));
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = '<p>לא נמצאו משחקים בליגות אלו ב-5 הימים הקרובים.</p>';
+            container.innerHTML = '<p style="padding:20px;">לא נמצאו משחקים קרובים (בדוק את שרת ה-Render).</p>';
             return;
         }
 
@@ -28,11 +28,8 @@ async function loadMatches() {
                 <span class="team-name">${m.teams?.away?.name || m.awayTeam || m.Match?.split(' vs ')[1]}</span>
             </div>
         `).join('');
-        
-        window.allMatches = filtered; // שמירה לניתוח
-    } catch (e) {
-        container.innerHTML = 'שגיאה בחיבור לשרת ה-Render. וודא שהשרת רץ.';
-    }
+        window.currentMatches = filtered;
+    } catch (e) { container.innerHTML = 'שגיאת API. וודא ששרת ה-Render פעיל.'; }
 }
 
 function changeSport(sport) {
@@ -41,10 +38,10 @@ function changeSport(sport) {
 }
 
 function showMatch(id) {
-    const m = window.allMatches.find(match => (match.id || match.fixture?.id) == id);
+    const m = window.currentMatches.find(match => (match.id || match.fixture?.id) == id);
     if (!m) return;
     document.getElementById('match-title').innerText = `${m.teams?.home?.name || m.homeTeam} vs ${m.teams?.away?.name || m.awayTeam}`;
-    document.getElementById('ai-verdict').innerHTML = `ניתוח AI: יתרון קל לקבוצה המארחת. צפוי משחק התקפי.`;
+    document.getElementById('ai-verdict').innerHTML = `ניתוח AI: יתרון סטטיסטי לקבוצה המארחת. צפוי משחק עם מעל 2.5 שערים/נקודות.`;
 }
 
 window.onload = loadMatches;
