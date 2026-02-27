@@ -2,31 +2,31 @@ const CONFIG = { apiUrl: 'https://football-recommendations.onrender.com/api' };
 const state = {
     matches: [],
     currentSport: 'football',
-    allowedLeagues: ['Ligat Ha\'al', 'Premier League', 'La Liga', 'Ligue 1', 'NBA', 'Winner League', 'Israel', 'Basketball']
+    // הליגות שביקשת (כולל ישראל ו-NBA)
+    allowedLeagues: ['Ligat Ha\'al', 'Premier', 'La Liga', 'Ligue 1', 'NBA', 'Winner', 'Israel']
 };
 
 async function fetchMatchesData() {
     const container = document.getElementById('matches-container');
-    container.innerHTML = '<p style="font-size:1.4rem; padding:15px;">סורק 5 ימים קדימה...</p>';
+    container.innerHTML = '<p style="font-size:1.4rem; padding:20px;">סורק משחקים מהשבוע הקרוב...</p>';
     
     try {
         const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}`);
         const data = await res.json();
         
-        // סינון חכם שמוצא את הליגות שביקשת
         state.matches = data.filter(m => {
             const league = (m.league?.name || m.leagueName || m.Match || "").toLowerCase();
             return state.allowedLeagues.some(l => league.includes(l.toLowerCase()));
         });
         
         renderList();
-    } catch (e) { container.innerHTML = 'שגיאה בטעינה'; }
+    } catch (e) { container.innerHTML = 'שגיאת API - וודא ששרת ה-Render רץ'; }
 }
 
 function renderList() {
     const container = document.getElementById('matches-container');
     if (state.matches.length === 0) {
-        container.innerHTML = '<p style="padding:15px;">לא נמצאו משחקים קרובים בליגות אלו.</p>';
+        container.innerHTML = '<p style="padding:20px;">אין משחקים קרובים בליגות אלו.</p>';
         return;
     }
     container.innerHTML = state.matches.map(m => `
@@ -38,3 +38,15 @@ function renderList() {
         </div>
     `).join('');
 }
+
+// מאזינים לכפתורי הבחירה
+document.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentSport = btn.dataset.sport;
+        fetchMatchesData();
+    });
+});
+
+window.onload = fetchMatchesData;
