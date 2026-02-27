@@ -8,28 +8,29 @@
 </head>
 <body>
 <div class="app-shell">
-    <main class="content-area">
-        <header class="main-header glass">
-            <h1>SportIQ <span>Ultra Pro</span></h1>
-            <div class="filter-pills">
-                <button class="pill active" data-sport="football">⚽ כדורגל (ישראל + אירופה)</button>
-                <button class="pill" data-sport="basketball">🏀 כדורסל (NBA + ישראל)</button>
-            </div>
-        </header>
-        <div class="dashboard-grid">
-            <section class="list-panel glass"><div id="matches-container"></div></section>
-            <section class="analysis-panel glass" id="analysis-view">
-                <div id="analysis-content" style="display:none;">
-                    <h2 id="match-title" style="font-size:2.8rem; font-weight:900;"></h2>
-                    <div id="ai-verdict-box" class="glass" style="margin:15px 0;"><p id="ai-verdict-text" style="font-size:1.4rem;"></p></div>
-                    <div id="deep-stats-grid" class="stat-grid"></div>
-                </div>
-            </section>
+    <header class="main-header">
+        <h1>SportIQ <span style="color:var(--accent)">ULTRA</span></h1>
+        <div id="sport-nav">
+            <button class="pill active" onclick="changeSport('football')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">⚽ כדורגל (ישראל+אירופה)</button>
+            <button class="pill" onclick="changeSport('basketball')" style="padding:10px 20px; font-weight:bold; cursor:pointer;">🏀 NBA + ליגת העל</button>
         </div>
-    </main>
+    </header>
+
+    <div class="dashboard-grid">
+        <section class="glass">
+            <h3 style="margin-bottom:15px;">ראדאר משחקים (5 ימים קדימה)</h3>
+            <div id="matches-container"></div>
+        </section>
+
+        <section class="glass">
+            <div id="analysis-content">
+                <h2 id="match-title" class="huge-title">בחר משחק מהרשימה</h2>
+                <div id="ai-verdict" style="font-size:1.5rem; background:rgba(0,0,0,0.3); padding:20px; border-radius:10px;"></div>
+            </div>
+        </section>
+    </div>
 </div>
-<script src="logic-engine.js"></script>
-<script src="ui-manager.js"></script>
+
 <script src="app.js"></script>
 </body>
 </html>
