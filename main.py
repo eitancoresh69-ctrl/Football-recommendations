@@ -10,23 +10,22 @@ RAPIDAPI_KEY = "e3c45d2ba2msh0a6788ca494b687p1e2806jsn82e3d3d003c1"
 
 @app.get("/api/matches/{sport}")
 def get_winner_style_data(sport: str):
-    headers = {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": "free-api-live-football-data.p.rapidapi.com" if sport == "football" else "nba-smart-bets-api.p.rapidapi.com"
-    }
+    is_football = sport == "football"
+    host = "free-api-live-football-data.p.rapidapi.com" if is_football else "nba-smart-bets-api.p.rapidapi.com"
+    headers = {"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": host}
     
     all_results = []
-    # סריקה של 7 ימים קדימה
+    # סריקה של 7 ימים קדימה (כמו בווינר)
     for i in range(7):
         date_str = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
-        url = f"https://{headers['x-rapidapi-host']}/football-get-fixtures-by-date" if sport == "football" else f"https://{headers['x-rapidapi-host']}/consistent_bets.json"
+        url = f"https://{host}/football-get-fixtures-by-date" if is_football else f"https://{host}/consistent_bets.json"
         
         try:
-            params = {"date": date_str} if sport == "football" else {}
-            res = requests.get(url, headers=headers, params=params, timeout=7)
+            params = {"date": date_str} if is_football else {}
+            res = requests.get(url, headers=headers, params=params, timeout=8)
             data = res.json().get('response', [])
             if data: all_results.extend(data)
-            if sport == "basketball": break 
+            if not is_football: break # ה-NBA מחזיר הכל במכה
         except: continue
             
-    return all_results if all_results else []
+    return all_results
