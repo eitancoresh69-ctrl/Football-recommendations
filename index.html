@@ -5,26 +5,31 @@
     <title>SportIQ Ultra Pro</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="app-shell">
-    <aside class="sidebar"></aside>
+    <aside class="sidebar"><div class="logo">S<span>IQ</span></div></aside>
     <main class="content-area">
         <header class="main-header glass">
             <h1>SportIQ <span>Ultra Pro</span></h1>
             <div class="filter-pills" id="sport-nav">
-                <button class="pill active" data-sport="football">⚽ כדורגל (כולל ישראל)</button>
+                <button class="pill active" data-sport="football">⚽ כדורגל (ישראל + אירופה)</button>
                 <button class="pill" data-sport="basketball">🏀 כדורסל (NBA + ישראל)</button>
             </div>
         </header>
         <div class="dashboard-grid">
             <section class="list-panel glass">
+                <h3>ראדאר משחקים (7 ימים קדימה)</h3>
                 <div id="matches-container" class="scroll-list"></div>
             </section>
-            <section class="analysis-panel glass">
+            <section class="analysis-panel glass" id="analysis-view">
+                <div id="placeholder-text" class="placeholder"><h3>בחר משחק לניתוח AI</h3></div>
                 <div id="analysis-content" style="display:none;">
-                    <h2 id="match-title" style="font-size:3rem; font-weight:900;"></h2>
-                    <div id="ai-verdict-box" class="glass" style="margin:15px 0; font-size:1.4rem;"></div>
+                    <h2 id="match-title" style="font-size:2.8rem; font-weight:900;"></h2>
+                    <div id="ai-verdict-box" class="glass" style="margin:15px 0; border:1px solid var(--accent);">
+                        <p id="ai-verdict-text" style="font-size:1.4rem;"></p>
+                    </div>
                     <div id="deep-stats-grid" class="stat-grid"></div>
                 </div>
             </section>
