@@ -1,24 +1,49 @@
-<div class="deep-analysis-grid">
-    <div class="stats-section glass">
-        <h4>📊 ממוצעים למשחק</h4>
-        <div id="stat-averages"></div>
-    </div>
-    
-    <div class="h2h-section glass">
-        <h4>⚔️ 5 מפגשים אחרונים</h4>
-        <div id="h2h-results"></div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>SportIQ Ultra Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar"><div class="logo">SIQ</div></aside>
+    <main class="content-area">
+        <header class="main-header">
+            <div>
+                <h1>SportIQ <span>Ultra Pro</span></h1>
+                <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
+            </div>
+            <div class="filter-pills" id="sport-nav">
+                <button class="pill active" data-sport="football">⚽ כדורגל</button>
+                <button class="pill" data-sport="basketball">🏀 NBA</button>
+            </div>
+        </header>
 
-<div class="team-forms glass">
-    <h4>📈 כושר נוכחי (5 משחקים אחרונים)</h4>
-    <div style="display: flex; justify-content: space-around;">
-        <div id="home-form"></div>
-        <div id="away-form"></div>
-    </div>
-</div>
+        <div class="dashboard-grid">
+            <section class="list-panel glass">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3>ראדאר משחקים</h3>
+                    <button id="refresh-btn" class="pill" style="font-size:0.8rem;">סנכרן 🔄</button>
+                </div>
+                <div id="matches-container"></div>
+            </section>
 
-<div class="missing-section glass">
-    <h4>🚑 חיסורים משמעותיים</h4>
-    <div id="missing-list-detail"></div>
+            <section class="analysis-panel glass">
+                <div id="analysis-content" style="display:none;">
+                    <h2 id="match-title"></h2>
+                    <div class="stat-grid" id="main-stats"></div>
+                    <div class="glass" style="background:rgba(0,242,255,0.05); margin-bottom:20px;">
+                        <h4>🧠 ניתוח AI Value Bet</h4>
+                        <p id="ai-verdict-text"></p>
+                    </div>
+                    <h4>⚔️ היסטוריית מפגשים (H2H)</h4>
+                    <div id="h2h-results"></div>
+                </div>
+            </section>
+        </div>
+    </main>
 </div>
+<script src="app.js"></script>
+</body>
+</html>
