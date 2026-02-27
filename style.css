@@ -1,41 +1,37 @@
-/* הגדלת גופן וצמצום רווחים */
+/* הגדלת גופן משמעותית וצמצום רווחים */
 .dashboard-grid {
-    grid-template-columns: 330px 1fr !important; /* צמצום עמודת הרשימה */
-    gap: 8px !important;
+    grid-template-columns: 340px 1fr !important;
+    gap: 6px !important; /* צמצום רווח בין העמודות */
 }
 
 .match-card {
-    padding: 12px !important;
-    margin-bottom: 8px !important;
-    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 12px !important; /* צמצום מרווח פנימי */
+    margin-bottom: 6px !important;
 }
 
 .team-name {
-    font-size: 1.3rem !important; /* גופן גדול מאוד לקבוצות */
-    font-weight: 800 !important;
+    font-size: 1.5rem !important; /* גופן ענק וברור */
+    font-weight: 900 !important;
     display: block;
-    margin: 4px 0;
-    line-height: 1.2;
-}
-
-.card-league {
-    font-size: 0.9rem !important;
-    color: var(--accent);
-    margin-bottom: 10px;
-    font-weight: 600;
+    line-height: 1.1;
+    margin: 2px 0;
 }
 
 .match-score {
-    font-size: 1.1rem !important;
-    font-weight: bold;
-    color: var(--dim);
+    font-size: 1.6rem !important; /* תוצאה/זמן בולטים */
+    color: var(--accent);
+    margin: 6px 0;
+    display: block;
 }
 
-.match-time {
+.card-league {
     font-size: 0.95rem !important;
     font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 5px;
 }
 
-.analysis-panel h2 {
-    font-size: 2.2rem !important; /* כותרת המשחק הנבחר */
+.card-meta {
+    font-size: 0.9rem !important;
+    color: var(--dim);
 }
