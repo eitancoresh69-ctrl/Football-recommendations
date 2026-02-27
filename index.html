@@ -2,26 +2,17 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SportIQ Ultra Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Heebo:wght@300;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="app-shell">
-    <aside class="sidebar">
-        <div class="logo">S<span>IQ</span></div>
-        </aside>
-
     <main class="content-area">
-        <header class="main-header">
-            <div class="header-info">
+        <header class="main-header glass" style="margin: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
                 <h1>SportIQ <span>Ultra Pro</span></h1>
-                <div class="status-row">
-                    <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
-                    <span class="live-clock" id="clock">00:00:00</span>
-                </div>
+                <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
             </div>
             <div class="filter-pills" id="sport-nav">
                 <button class="pill active" data-sport="football">⚽ כדורגל</button>
@@ -31,23 +22,25 @@
 
         <div class="dashboard-grid">
             <section class="list-panel glass">
-                <div class="panel-head">
-                    <h3>ראדאר משחקים</h3>
-                    <button class="sync-btn" id="refresh-btn">סנכרן 🔄</button>
-                </div>
-                <div id="matches-container" class="scroll-list"></div>
+                <h3>ראדאר משחקים</h3>
+                <div id="matches-container"></div>
             </section>
 
-            <section class="analysis-panel glass" id="analysis-view">
-                <div id="placeholder-text" class="placeholder">
-                    <div class="pulse-icon">🧠</div>
-                    <h3>מנוע חיזוי AI</h3>
-                    <p>בחר משחק כדי להפיק דוח Value Bet מלא</p>
-                </div>
+            <section class="analysis-panel glass">
                 <div id="analysis-content" style="display:none;">
-                    <h2 id="match-title">טוען...</h2>
+                    <h2 id="match-title"></h2>
                     <div id="ai-predictions" class="odds-grid"></div>
-                    <div class="ai-verdict-box"><p id="ai-verdict-text"></p></div>
+                    
+                    <div class="deep-analysis">
+                        <h4>📊 נתונים מתקדמים</h4>
+                        <div id="deep-stats-grid" class="stat-grid"></div>
+                        
+                        <h4 style="margin-top:20px;">🚑 פצועים ומורחקים</h4>
+                        <div id="missing-players-list"></div>
+                        
+                        <h4 style="margin-top:20px;">⚔️ היסטוריית מפגשים (H2H)</h4>
+                        <div id="h2h-list"></div>
+                    </div>
                 </div>
             </section>
         </div>
