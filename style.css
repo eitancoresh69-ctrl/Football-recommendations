@@ -1,26 +1,83 @@
-.deep-analysis-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
+:root {
+    --bg-color: #0f172a;
+    --panel-bg: rgba(30, 41, 59, 0.7);
+    --accent: #00f2ff;
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
 }
 
-.h2h-row {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 8px;
+body {
+    margin: 0;
+    font-family: 'Heebo', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    direction: rtl;
+    min-height: 100vh;
+}
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+    width: 80px;
+    background: #020617;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo { font-size: 1.5rem; font-weight: 900; color: var(--accent); }
+
+.content-area { flex: 1; padding: 25px; }
+
+.main-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
-.player-row.injury { border-right: 3px solid #ef4444; }
-.player-row.suspension { border-right: 3px solid #f59e0b; }
+/* כפתורי הליגות והענפים למעלה */
+.filter-pills { display: flex; gap: 10px; }
 
-.player-row {
+.pill {
     background: rgba(255, 255, 255, 0.05);
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 4px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
 }
+
+.pill.active { background: var(--accent); color: #000; font-weight: bold; }
+
+.glass {
+    background: var(--panel-bg);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 25px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+}
+
+.match-card {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.match-card.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(0,242,255,0.2); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+.stat-card { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; text-align: center; }
+.stat-card b { font-size: 1.5rem; color: var(--accent); display: block; }
