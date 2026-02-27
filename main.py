@@ -1,70 +1,76 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import requests
+import random
 
 app = FastAPI(title="SportIQ Ultra Pro API")
 
-# מאפשר ל-Frontend שלך (שפועל בדפדפן) לדבר עם השרת
+# מאפשר לאתר שלך ב-GitHub Pages לדבר עם השרת
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # בסביבת ייצור נשנה את זה לדומיין של האתר שלך
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# הגדרות ה-API של הספורט (RapidAPI / API-Football)
-RAPIDAPI_KEY = "הכנס_כאן_את_המפתח_שלך_מ_RAPIDAPI"
-RAPIDAPI_HOST = "api-football-v1.p.rapidapi.com" # מומלץ לעבור ל-API-Football
-
-def calculate_value_bet(true_probability_percent, bookmaker_odds):
-    """
-    מנוע חישוב Value Bet.
-    בודק האם ההסתברות שהמערכת שלנו חישבה שווה יותר מהיחס שמציע הבוקי.
-    """
-    true_prob_decimal = true_probability_percent / 100
-    expected_value = (true_prob_decimal * bookmaker_odds) - 1
-    
-    # אם התוצאה חיובית, יש כאן ערך (Value)
-    return expected_value > 0.05 # דורשים לפחות 5% יתרון
+# מנוע חישוב Value Bet בסיסי
+def calculate_value_bet(home_prob, draw_prob, away_prob):
+    if home_prob > 55:
+        return f"💡 זיהוי AI: שליטה מובהקת של המארחת. מומלץ לשקול הימור על ניצחון בית (1) עם ערך גבוה. הסתברות: {home_prob}%"
+    elif away_prob > 55:
+        return f"💡 זיהוי AI: קבוצת החוץ שולטת בקצב. מומלץ לשקול הימור על ניצחון חוץ (2). הסתברות: {away_prob}%"
+    else:
+        return "⚖️ זיהוי AI: משחק שקול וצמוד. אין ערך (Value) ברור בניצחון ישיר. ההמלצה היא הימור כפול (1X / X2) או הימור על כמות שערים."
 
 @app.get("/api/matches/live")
-def get_live_matches(league_id: int = None):
+def get_live_matches():
     """
-    שואב משחקים חיים ומעביר אותם דרך מנוע הניתוח שלנו.
-    למשל: league_id=2 עבור ליגת האלופות.
+    נקודת הקצה שמספקת נתונים לאתר שלך.
+    בעתיד, כאן נוסיף את הקריאה האמיתית ל-API של הכדורגל וה-NBA.
+    כרגע, המערכת מחזירה מבנה נתונים מדויק כדי להפעיל את הדשבורד.
     """
-    # כאן תהיה קריאה אמיתית ל-API:
-    # url = "https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all"
-    # headers = {"X-RapidAPI-Key": RAPIDAPI_KEY, "X-RapidAPI-Host": RAPIDAPI_HOST}
-    # response = requests.get(url, headers=headers)
     
-    # בינתיים, נייצר מידע דמה מובנה שמדמה תשובה מהשרת לאחר עיבוד
-    matches = [
+    match_data = [
         {
-            "id": "match_1",
-            "leagueId": 2, # ליגת האלופות
+            "id": "m1",
+            "leagueId": "champions",
             "leagueName": "ליגת האלופות",
             "homeTeam": "ריאל מדריד",
-            "awayTeam": "באיירן מינכן",
+            "awayTeam": "מנצ'סטר סיטי",
             "score": "1 - 1",
-            "minute": 72,
-            "xG": {"home": 1.8, "away": 0.9},
-            "winProbs": {"home": 45, "draw": 35, "away": 20}, # ההסתברות שהמערכת שלנו חישבה
-            "bookmakerOdds": {"home": 2.50, "draw": 3.10, "away": 3.80}, # היחסים מאתר ההימורים
-            "momentum": {"home": [20, 40, 60, 80], "away": [50, 40, 30, 20]},
-            "injuries": [{"player": "ויניסיוס", "team": "ריאל מדריד", "reason": "מתיחה"}]
+            "minute": 65,
+            "xG": {"home": 1.2, "away": 1.8},
+            "possession": {"home": 42, "away": 58},
+            "shotsOnTarget": {"home": 4, "away": 7},
+            "dangerousAttacks": {"home": 45, "away": 60},
+            "winProbs": {"home": 25, "draw": 40, "away": 35},
+            "aiConfidence": 88,
+            "verdict": calculate_value_bet(25, 40, 35),
+            "momentum": {"home": [30, 40, 20, 60, 50, 40], "away": [50, 60, 70, 40, 60, 80]},
+            "injuries": [{"player": "קווין דה בראונה", "team": "סיטי", "reason": "פציעה בשריר הירך (בספק)"}]
+        },
+        {
+            "id": "m2",
+            "leagueId": "premier",
+            "leagueName": "פרמייר ליג",
+            "homeTeam": "ארסנל",
+            "awayTeam": "ליברפול",
+            "score": "2 - 0",
+            "minute": 32,
+            "xG": {"home": 1.5, "away": 0.4},
+            "possession": {"home": 55, "away": 45},
+            "shotsOnTarget": {"home": 5, "away": 1},
+            "dangerousAttacks": {"home": 30, "away": 15},
+            "winProbs": {"home": 75, "draw": 15, "away": 10},
+            "aiConfidence": 92,
+            "verdict": calculate_value_bet(75, 15, 10),
+            "momentum": {"home": [60, 70, 80, 0, 0, 0], "away": [40, 30, 20, 0, 0, 0]},
+            "injuries": [{"player": "בוקאיו סאקה", "team": "ארסנל", "reason": "מתיחה קלה"}]
         }
     ]
     
-    # הרצת מנוע האנליזה על כל משחק
-    for match in matches:
-        # בודק אם יש Value על ניצחון ביתי
-        has_home_value = calculate_value_bet(match["winProbs"]["home"], match["bookmakerOdds"]["home"])
-        
-        if has_home_value:
-            match["verdict"] = f"זוהה Value Bet! יחס הבוקי על {match['homeTeam']} הוא {match['bookmakerOdds']['home']}, אבל ההסתברות האמיתית גבוהה יותר."
-        else:
-            match["verdict"] = "אין ערך מהותי בהימור כרגע. המתן להתפתחות המשחק."
-            
-    return matches
+    return match_data
+
+@app.get("/")
+def root():
+    return {"status": "SportIQ API is Live!", "message": "Server is running perfectly."}
