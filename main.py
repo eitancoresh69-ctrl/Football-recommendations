@@ -16,7 +16,7 @@ def get_winner_data(sport: str):
     }
     
     all_results = []
-    # סריקה של 5 ימים קדימה למהירות מקסימלית
+    # סריקת 5 ימים קדימה למהירות
     for i in range(5):
         date_str = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
         url = f"https://{headers['x-rapidapi-host']}/football-get-fixtures-by-date" if sport == "football" else f"https://{headers['x-rapidapi-host']}/consistent_bets.json"
@@ -24,8 +24,9 @@ def get_winner_data(sport: str):
         try:
             res = requests.get(url, headers=headers, params={"date": date_str} if sport == "football" else {}, timeout=10)
             data = res.json()
+            # NBA מחזיר רשימה [], כדורגל מחזיר אובייקט עם 'response'
             items = data if isinstance(data, list) else data.get('response', [])
             all_results.extend(items)
-            if sport == "basketball": break # NBA מחזיר הכל במכה
+            if sport == "basketball": break 
         except: continue
     return all_results
