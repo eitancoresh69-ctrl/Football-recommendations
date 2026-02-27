@@ -1,6 +1,6 @@
-/* הגדלת גופן משמעותית וצמצום רווחים */
+/* הגדלת גופן וצמצום רווחים - לא לשנות שאר עיצוב */
 .dashboard-grid {
-    grid-template-columns: 340px 1fr !important;
+    grid-template-columns: 340px 1fr !important; /* הרחבת עמודת הרשימה */
     gap: 6px !important; /* צמצום רווח בין העמודות */
 }
 
@@ -10,7 +10,7 @@
 }
 
 .team-name {
-    font-size: 1.5rem !important; /* גופן ענק וברור */
+    font-size: 1.5rem !important; /* גופן ענק וברור לקבוצות */
     font-weight: 900 !important;
     display: block;
     line-height: 1.1;
@@ -18,20 +18,23 @@
 }
 
 .match-score {
-    font-size: 1.6rem !important; /* תוצאה/זמן בולטים */
+    font-size: 1.4rem !important; /* תוצאה/זמן בולטים */
     color: var(--accent);
-    margin: 6px 0;
+    margin: 5px 0;
     display: block;
 }
 
 .card-league {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important; /* שם הליגה גדול יותר */
     font-weight: 700;
     color: var(--accent);
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
-.card-meta {
-    font-size: 0.9rem !important;
-    color: var(--dim);
+.placeholder h3 {
+    font-size: 1.8rem !important;
+}
+
+.placeholder p {
+    font-size: 1.2rem !important;
 }
