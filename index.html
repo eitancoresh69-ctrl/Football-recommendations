@@ -12,11 +12,7 @@
 <div class="app-shell">
     <aside class="sidebar">
         <div class="logo">S<span>IQ</span></div>
-        <nav id="sport-nav" class="nav-container">
-            <button class="nav-btn active" data-sport="football">⚽ כדורגל</button>
-            <button class="nav-btn" data-sport="basketball">🏀 NBA</button>
-        </nav>
-    </aside>
+        </aside>
 
     <main class="content-area">
         <header class="main-header">
@@ -27,6 +23,10 @@
                     <span class="live-clock" id="clock">00:00:00</span>
                 </div>
             </div>
+            <div class="filter-pills" id="sport-nav">
+                <button class="pill active" data-sport="football">⚽ כדורגל</button>
+                <button class="pill" data-sport="basketball">🏀 NBA</button>
+            </div>
         </header>
 
         <div class="dashboard-grid">
@@ -35,8 +35,7 @@
                     <h3>ראדאר משחקים</h3>
                     <button class="sync-btn" id="refresh-btn">סנכרן 🔄</button>
                 </div>
-                <div id="matches-container" class="scroll-list">
-                    </div>
+                <div id="matches-container" class="scroll-list"></div>
             </section>
 
             <section class="analysis-panel glass" id="analysis-view">
@@ -48,9 +47,7 @@
                 <div id="analysis-content" style="display:none;">
                     <h2 id="match-title">טוען...</h2>
                     <div id="ai-predictions" class="odds-grid"></div>
-                    <div class="ai-verdict-box">
-                        <p id="ai-verdict-text"></p>
-                    </div>
+                    <div class="ai-verdict-box"><p id="ai-verdict-text"></p></div>
                 </div>
             </section>
         </div>
