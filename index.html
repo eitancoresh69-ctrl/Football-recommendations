@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <title>SportIQ Ultra Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="[https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap)" rel="stylesheet">
 </head>
 <body>
     <div class="app-shell">
         <main class="content-area">
             <header class="main-header">
                 <h1>SportIQ <span style="color:var(--accent)">ULTRA</span></h1>
-                <div>
+                <div class="pill-group">
                     <button class="pill active" onclick="setSport('football')">⚽ כדורגל</button>
                     <button class="pill" onclick="setSport('basketball')">🏀 כדורסל (NBA+ישראל)</button>
                 </div>
             </header>
             <div class="dashboard-grid">
                 <section class="analysis-view">
-                    <h2 id="match-title" class="huge-title">בחר משחק</h2>
-                    <div id="ai-text" class="stat-box">הניתוח בעברית יופיע כאן...</div>
+                    <h2 id="m-title" class="huge-title">בחר משחק מהראדאר</h2>
+                    <div id="ai-text" class="ai-box">ניתוח בעברית יופיע כאן לאחר בחירת משחק.</div>
                 </section>
                 <section class="list-panel" id="match-list"></section>
             </div>
