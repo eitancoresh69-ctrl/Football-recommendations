@@ -15,8 +15,25 @@ const state = {
 async function initApp() {
     startClock();
     setupEventListeners();
-    await fetchMatchesData();
-    
+async function fetchMatchesData() {
+    const statusEl = document.getElementById('system-status');
+    statusEl.innerText = 'SYNCING...';
+    statusEl.classList.remove('error');
+
+    try {
+        // קריאה לשרת הפייתון האמיתי שלנו!
+        const res = await fetch('http://127.0.0.1:8000/api/matches/live');
+        const data = await res.json();
+        
+        state.matches = data; 
+        renderMatchList();
+        statusEl.innerText = 'SYSTEM ONLINE';
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        statusEl.innerText = 'CONNECTION ERROR';
+        statusEl.classList.add('error');
+    }
+}    
     // רענון אוטומטי
     setInterval(fetchMatchesData, CONFIG.pollInterval);
 }
