@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportIQ Ultra Pro — AI Analysis Suite</title>
+    <title>SportIQ Ultra Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Heebo:wght@300;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Heebo:wght@300;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
 <div class="app-shell">
     <aside class="sidebar">
         <div class="logo">S<span>IQ</span></div>
-        <nav id="sport-nav">
-            </nav>
+        <nav id="sport-nav" class="nav-container">
+            <button class="nav-btn active" data-sport="football">⚽ כדורגל</button>
+            <button class="nav-btn" data-sport="basketball">🏀 NBA</button>
+        </nav>
     </aside>
 
     <main class="content-area">
@@ -25,11 +26,6 @@
                     <span id="system-status" class="api-badge success">SYSTEM ONLINE</span>
                     <span class="live-clock" id="clock">00:00:00</span>
                 </div>
-            </div>
-            <div class="filter-pills" id="league-filters">
-                <button class="pill active" data-league="all">כל הליגות</button>
-                <button class="pill" data-league="champions">ליגת האלופות</button>
-                <button class="pill" data-league="premier">פרמייר ליג</button>
             </div>
         </header>
 
@@ -47,49 +43,13 @@
                 <div id="placeholder-text" class="placeholder">
                     <div class="pulse-icon">🧠</div>
                     <h3>מנוע חיזוי AI</h3>
-                    <p>בחר משחק מאירופה כדי להפיק דוח Value Bet מלא</p>
+                    <p>בחר משחק כדי להפיק דוח Value Bet מלא</p>
                 </div>
-
                 <div id="analysis-content" style="display:none;">
-                    <div class="analysis-header">
-                        <h2 id="match-title">טוען...</h2>
-                        <span id="match-league" class="league-tag"></span>
-                    </div>
-
-                    <div class="analysis-nav">
-                        <button class="tab-btn active" data-target="overview">AI סקירה</button>
-                        <button class="tab-btn" data-target="deep-stats">H2H וסטטיסטיקה</button>
-                        <button class="tab-btn" data-target="roster">סגלים ופציעות</button>
-                    </div>
-
-                    <div id="tab-overview" class="tab-content active">
-                        <div class="odds-grid" id="ai-predictions"></div>
-                        <div class="ai-verdict-box">
-                            <strong>💡 המלצת המערכת (Value Bet):</strong>
-                            <p id="ai-verdict-text"></p>
-                        </div>
-                        <div class="chart-wrapper">
-                            <h4>לחץ התקפי (Live Momentum)</h4>
-                            <canvas id="momentumChart"></canvas>
-                        </div>
-                        <button id="tg-share-btn" class="tg-full-btn">שלח התראת הימור לטלגרם 🚀</button>
-                    </div>
-
-                    <div id="tab-deep-stats" class="tab-content">
-                        <div class="main-stats-grid" id="deep-stats-grid"></div>
-                    </div>
-
-                    <div id="tab-roster" class="tab-content">
-                        <div class="roster-grid">
-                            <div class="roster-col">
-                                <h5>🔴 נעדרים ופצועים</h5>
-                                <div id="missing-list"></div>
-                            </div>
-                            <div class="roster-col">
-                                <h5>⚠️ סכנת הרחקה (כרטיסים)</h5>
-                                <div id="cards-list"></div>
-                            </div>
-                        </div>
+                    <h2 id="match-title">טוען...</h2>
+                    <div id="ai-predictions" class="odds-grid"></div>
+                    <div class="ai-verdict-box">
+                        <p id="ai-verdict-text"></p>
                     </div>
                 </div>
             </section>
