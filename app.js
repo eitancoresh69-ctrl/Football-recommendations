@@ -1,172 +1,154 @@
-// תצורת האפליקציה - מתחבר לשרת ה-Render החדש שלך באוויר!
+// תצורת המערכת - חיבור לשרת ב-Render
 const CONFIG = {
     apiUrl: 'https://football-recommendations.onrender.com/api',
-    pollInterval: 30000 
+    pollInterval: 30000 // רענון אוטומטי כל 30 שניות
 };
 
+// ניהול מצב האפליקציה
 const state = {
     matches: [],
-    selectedMatchId: null,
-    currentLeagueFilter: 'all',
-    momentumChartInstance: null
+    currentSport: 'football', // ברירת מחדל: כדורגל
+    selectedMatchId: null
 };
 
-// אתחול המערכת
-async function initApp() {
-    startClock();
-    setupEventListeners();
-    
-    // משיכת נתונים ראשונית כשהאתר עולה
-    await fetchMatchesData();
-    
-    // רענון אוטומטי כל 30 שניות
-    setInterval(fetchMatchesData, CONFIG.pollInterval);
-}
-
-// קריאה לשרת הפייתון האמיתי שלנו בענן!
+/**
+ * משיכת נתונים מהשרת לפי סוג הספורט הנבחר
+ */
 async function fetchMatchesData() {
     const statusEl = document.getElementById('system-status');
-    statusEl.innerText = 'SYNCING...';
-    statusEl.classList.remove('error');
-
+    if (statusEl) {
+        statusEl.innerText = 'SYNCING...';
+        statusEl.classList.remove('error');
+    }
+    
     try {
-        const res = await fetch(`${CONFIG.apiUrl}/matches/live`);
+        // פנייה לכתובת הדינמית בשרת (football או basketball)
+        const res = await fetch(`${CONFIG.apiUrl}/matches/${state.currentSport}`);
         const data = await res.json();
         
-        state.matches = data; 
+        // עדכון המצב ורינדור הרשימה
+        state.matches = Array.isArray(data) ? data : [];
         renderMatchList();
-        statusEl.innerText = 'SYSTEM ONLINE';
+        
+        if (statusEl) statusEl.innerText = 'SYSTEM ONLINE';
     } catch (error) {
-        console.error("Error fetching data:", error);
-        statusEl.innerText = 'CONNECTION ERROR';
-        statusEl.classList.add('error');
+        console.error("Fetch Error:", error);
+        if (statusEl) {
+            statusEl.innerText = 'CONNECTION ERROR';
+            statusEl.classList.add('error');
+        }
     }
 }
 
-// מאזינים לאירועים
-function setupEventListeners() {
-    document.getElementById('refresh-btn').addEventListener('click', fetchMatchesData);
-    
-    // פילטר ליגות
-    document.querySelectorAll('.filter-pills .pill').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.filter-pills .pill').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            state.currentLeagueFilter = e.target.dataset.league;
-            renderMatchList();
-        });
-    });
-
-    // ניווט טאבים באנליזה
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            e.target.classList.add('active');
-            document.getElementById(`tab-${e.target.dataset.target}`).classList.add('active');
-        });
-    });
-
-    document.getElementById('tg-share-btn').addEventListener('click', sendToTelegram);
-}
-
-// רינדור רשימת המשחקים
+/**
+ * הצגת רשימת המשחקים בלוח הראדאר
+ */
 function renderMatchList() {
     const container = document.getElementById('matches-container');
-    const filteredMatches = state.matches.filter(m => 
-        state.currentLeagueFilter === 'all' || m.leagueId === state.currentLeagueFilter
-    );
+    if (!container) return;
 
-    if (filteredMatches.length === 0) {
-        container.innerHTML = '<p class="muted">אין משחקים חיים כרגע בליגה זו.</p>';
+    if (state.matches.length === 0) {
+        container.innerHTML = `
+            <div class="placeholder">
+                <p class="muted">אין משחקים זמינים כרגע ב-${state.currentSport === 'football' ? 'כדורגל' : 'NBA'}.</p>
+                <p class="muted">נסה לסנכרן שוב בעוד מספר דקות.</p>
+            </div>`;
         return;
     }
 
-    container.innerHTML = filteredMatches.map(m => `
+    container.innerHTML = state.matches.map(m => `
         <div class="match-card ${state.selectedMatchId === m.id ? 'active' : ''}" onclick="selectMatch('${m.id}')">
-            <div style="font-size:0.75rem; color:var(--accent)">${m.leagueName} | דקה: ${m.minute}'</div>
-            <div style="display:flex; justify-content:space-between; margin:8px 0; font-size:1.1rem;">
-                <b>${m.homeTeam}</b> <span style="background:#000; padding:2px 8px; border-radius:5px;">${m.score}</span> <b>${m.awayTeam}</b>
+            <div class="match-meta">
+                <span class="league-name">${m.leagueName}</span>
+                <span class="match-time">${m.minute}</span>
             </div>
-            <div style="font-size:0.75rem; color:var(--dim); display:flex; justify-content:space-between;">
+            <div class="match-teams">
+                <span class="team-name">${m.homeTeam}</span>
+                <span class="match-score">${m.score}</span>
+                <span class="team-name">${m.awayTeam}</span>
+            </div>
+            <div class="match-stats-preview">
                 <span>AI Confidence: ${m.aiConfidence}%</span>
-                <span>${m.xG.home} xG ${m.xG.away}</span>
             </div>
         </div>
     `).join('');
 }
 
-// בחירת משחק והצגת האנליזה
+/**
+ * בחירת משחק והצגת ניתוח ה-AI
+ */
 function selectMatch(id) {
     state.selectedMatchId = id;
     const match = state.matches.find(m => m.id === id);
     if (!match) return;
 
-    renderMatchList(); // לעדכון הכרטיסייה הפעילה
+    // עדכון ויזואלי של הרשימה
+    renderMatchList();
 
+    // הצגת פאנל הניתוח
     document.getElementById('placeholder-text').style.display = 'none';
     document.getElementById('analysis-content').style.display = 'block';
     
     document.getElementById('match-title').innerText = `${match.homeTeam} vs ${match.awayTeam}`;
-    document.getElementById('match-league').innerText = match.leagueName;
+    
+    // הצגת הסתברויות ניצחון
+    const probsContainer = document.getElementById('ai-predictions');
+    if (probsContainer) {
+        probsContainer.innerHTML = `
+            <div class="odds-box"><label>1 (בית)</label><h4>${match.winProbs.home}%</h4></div>
+            <div class="odds-box"><label>X (תיקו)</label><h4>${match.winProbs.draw}%</h4></div>
+            <div class="odds-box"><label>2 (חוץ)</label><h4>${match.winProbs.away}%</h4></div>
+        `;
+    }
 
-    renderOverview(match);
-    renderDeepStats(match);
-    renderRoster(match);
+    document.getElementById('ai-verdict-text').innerHTML = match.verdict;
 }
 
-function renderOverview(m) {
-    // רינדור יחסים וסיכויים
-    document.getElementById('ai-predictions').innerHTML = `
-        <div class="odds-box"><label>1 (בית)</label><h4>${m.winProbs.home}%</h4><small>יחס הוגן: ${(100/m.winProbs.home).toFixed(2)}</small></div>
-        <div class="odds-box"><label>X (תיקו)</label><h4>${m.winProbs.draw}%</h4><small>יחס הוגן: ${(100/m.winProbs.draw).toFixed(2)}</small></div>
-        <div class="odds-box"><label>2 (חוץ)</label><h4>${m.winProbs.away}%</h4><small>יחס הוגן: ${(100/m.winProbs.away).toFixed(2)}</small></div>
-    `;
+/**
+ * הגדרת מאזינים לאירועים (כפתורים)
+ */
+function setupEventListeners() {
+    // כפתור רענון ידני
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', fetchMatchesData);
+    }
 
-    document.getElementById('ai-verdict-text').innerHTML = m.verdict;
-
-    // גרף מומנטום
-    const ctx = document.getElementById('momentumChart').getContext('2d');
-    if (state.momentumChartInstance) state.momentumChartInstance.destroy();
-    
-    state.momentumChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['15','30','45','60','75','90'],
-            datasets: [
-                { label: m.homeTeam, data: m.momentum.home, borderColor: '#00f2ff', tension: 0.4 },
-                { label: m.awayTeam, data: m.momentum.away, borderColor: '#ff4d4d', tension: 0.4 }
-            ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false } }
+    // מעבר בין כדורגל לכדורסל בסרגל הצד
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // עדכון עיצוב הכפתורים
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // עדכון הסוג וטעינה מחדש
+            state.currentSport = btn.dataset.sport;
+            state.selectedMatchId = null; // איפוס בחירה
+            
+            // איפוס תצוגת האנליזה
+            document.getElementById('placeholder-text').style.display = 'block';
+            document.getElementById('analysis-content').style.display = 'none';
+            
+            fetchMatchesData();
+        });
     });
 }
 
-function renderDeepStats(m) {
-    document.getElementById('deep-stats-grid').innerHTML = `
-        <div class="stat-card"><label>שערים צפויים (xG)</label><b>${m.xG.home} - ${m.xG.away}</b></div>
-        <div class="stat-card"><label>החזקת כדור</label><b>${m.possession.home}% - ${m.possession.away}%</b></div>
-        <div class="stat-card"><label>בעיטות למסגרת</label><b>${m.shotsOnTarget.home} - ${m.shotsOnTarget.away}</b></div>
-        <div class="stat-card"><label>התקפות מסוכנות</label><b>${m.dangerousAttacks.home} - ${m.dangerousAttacks.away}</b></div>
-    `;
-}
-
-function renderRoster(m) {
-    document.getElementById('missing-list').innerHTML = m.injuries.length ? 
-        m.injuries.map(i => `<div class="player-row"><strong>${i.player}</strong> (${i.team}) - ${i.reason}</div>`).join('') :
-        '<p class="muted">אין חיסורים משמעותיים דווחו.</p>';
-}
-
-function sendToTelegram() {
-    alert("בגרסת הייצור, פונקציה זו תיקרא לשרת שלך, והשרת ישלח את ההודעה לטלגרם בצורה מאובטחת בלי לחשוף את הטוקן.");
-}
-
+/**
+ * שעון זמן אמת
+ */
 function startClock() {
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('he-IL');
-    }, 1000);
+    const clockEl = document.getElementById('clock');
+    if (clockEl) {
+        setInterval(() => {
+            clockEl.innerText = new Date().toLocaleTimeString('he-IL');
+        }, 1000);
+    }
 }
 
-// הפעלה
-window.onload = initApp;
+// הפעלה ראשונית
+window.onload = () => {
+    startClock();
+    setupEventListeners();
+    fetchMatchesData(); // טעינה ראשונה של נתונים
+};
