@@ -1,29 +1,45 @@
 :root {
   --bg: #02040a;
-  --panel: rgba(15, 23, 42, 0.95);
-  --accent: #00f0ff;
+  --accent: #00f0ff; /* טורקיז זרחני */
+  --panel: rgba(15, 23, 42, 0.9);
+  --text: #f8fafc;
 }
 
-body { background: var(--bg); color: #fff; font-family: 'Heebo', sans-serif; direction: rtl; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: 'Heebo', sans-serif; 
+  direction: rtl; 
+  height: 100vh; 
+  overflow: hidden; 
+}
 
-.dashboard-grid {
+/* צמצום השטחים האדומים שסימנת */
+.content-area { padding: 5px !important; }
+.dashboard-grid { 
   display: grid; 
-  grid-template-columns: 380px 1fr !important; 
-  gap: 5px !important; /* צמצום השטחים האדומים שסימנת */
+  grid-template-columns: 360px 1fr !important; 
+  gap: 5px !important; 
 }
 
+/* כרטיסים עם גופנים ענקיים לקריאות מקסימלית */
 .match-card {
-  background: rgba(0,0,0,0.4); 
-  padding: 8px !important; 
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px !important;
   margin-bottom: 5px !important;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 .team-name {
-  font-size: 1.8rem !important; /* גופן ענק לקבוצות */
+  font-size: 1.8rem !important; /* גופן ענק וברור */
   font-weight: 900 !important;
-  line-height: 1;
   display: block;
+  line-height: 1.1;
 }
 
-.card-league { font-size: 1rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+.card-league { font-size: 1rem !important; color: var(--accent); font-weight: 700; }
+.match-score { font-size: 1.6rem !important; font-weight: 900; color: var(--accent); }
+
+.glass { background: var(--panel); border: 1px solid rgba(255,255,255,0.05); padding: 12px; }
