@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SportIQ ULTRA</title>
     <style>
-        /* --- עיצוב --- */
+        /* --- עיצוב כללי --- */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0d1117; /* רקע כהה בדומה לעיצוב המקורי */
+            background-color: #0d1117; 
             color: #ffffff;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
 
-        /* סרגל עליון - מפריד את הכפתורים מהכותרת */
+        /* סרגל עליון - מפריד את הכפתורים מהכותרת כפי שביקשת */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -44,7 +44,7 @@
         }
 
         .nav-btn.active {
-            background-color: #00f2fe; /* צבע תכלת לכפתור פעיל */
+            background-color: #00f2fe; 
             color: #000;
             border-color: #00f2fe;
             font-weight: bold;
@@ -60,7 +60,7 @@
 
         .status {
             font-size: 12px;
-            color: #4ade80; /* ירוק */
+            color: #4ade80;
             border: 1px solid #4ade80;
             padding: 2px 8px;
             border-radius: 10px;
@@ -111,6 +111,22 @@
             color: #8b949e;
             margin-top: 20px;
         }
+        
+        /* עיצוב כרטיסיית משחק ברשימה */
+        .game-card {
+            background: #21262d; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            border: 1px solid #30363d; 
+            text-align: right;
+            transition: border-color 0.2s;
+        }
+        
+        .game-card:hover {
+            border-color: #00f2fe;
+        }
     </style>
 </head>
 <body>
@@ -131,7 +147,7 @@
         <div class="sidebar">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0;">משחקים</h3>
-                <span style="font-size: 12px; color: #e3b341; border: 1px solid #e3b341; padding: 2px 5px; border-radius: 5px;">LOADING</span>
+                <span id="loading-badge" style="font-size: 12px; color: #e3b341; border: 1px solid #e3b341; padding: 2px 5px; border-radius: 5px;">LOADING</span>
             </div>
             <input type="text" class="search-box" placeholder="חפש קבוצה...">
             
@@ -148,74 +164,82 @@
     </div>
 
     <script>
-        // כתובת השרת שלך לפי מה שמופיע בקוד שצירפת
         const API_BASE = 'https://football-recommendations.onrender.com';
-        
-        // משתנה ששומר את הספורט הנוכחי - באנגלית עבור ה-API!
         let currentSportApiName = 'football';
 
-        // פונקציה שנקראת בעת לחיצה על כפתורי הספורט
+        // החלפת ענף ספורט
         function changeSport(sportStr) {
             currentSportApiName = sportStr;
             
-            // עדכון עיצוב הכפתורים
             document.getElementById('btn-football').classList.remove('active');
             document.getElementById('btn-basketball').classList.remove('active');
             document.getElementById(`btn-${sportStr}`).classList.add('active');
 
-            // קריאה למשיכת נתונים מחדש
             fetchGamesData();
         }
 
-        // פונקציה למשיכת הנתונים
+        // משיכת הנתונים - קודם חי, ואם אין אז מתוכנן להיום
         async function fetchGamesData() {
             const gamesContainer = document.getElementById('games-container');
+            const loadingBadge = document.getElementById('loading-badge');
             
-            // הצגת טקסט טעינה בעברית
             gamesContainer.innerHTML = '<div style="margin-top: 30px;">מחפש משחקים... ⏳</div>';
+            loadingBadge.style.display = 'block';
 
             try {
-                // כאן הקסם קורה: אנחנו משתמשים במשתנה באנגלית (football/basketball) כדי לדבר עם ה-API
-                const url = `${API_BASE}/api/v1/sport/${currentSportApiName}/events/live`;
-                console.log("מושך נתונים מ:", url);
-
-                const response = await fetch(url);
+                // 1. ניסיון למשוך משחקים חיים
+                const liveUrl = `${API_BASE}/api/v1/sport/${currentSportApiName}/events/live`;
+                let response = await fetch(liveUrl);
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-                
-                const data = await response.json();
-                
-                // כאן תרנדר את הנתונים לעברית
+                let data = await response.json();
+
+                // 2. אם אין משחקים חיים, נמשוך משחקים מתוכננים להיום
+                if (!data || !data.events || data.events.length === 0) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const scheduledUrl = `${API_BASE}/api/v1/sport/${currentSportApiName}/scheduled-events/${today}`;
+                    
+                    response = await fetch(scheduledUrl);
+                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                    data = await response.json();
+                }
+
+                // רינדור הנתונים למסך
                 renderGamesToScreen(data);
 
             } catch (error) {
                 console.error('שגיאה במשיכת נתונים:', error);
-                gamesContainer.innerHTML = '<div style="color: #ff6b6b; margin-top: 30px;">לא נמצאו משחקים זמינים כרגע או שיש שגיאת חיבור.</div>';
+                gamesContainer.innerHTML = '<div style="color: #ff6b6b; margin-top: 30px;">שגיאת חיבור או שלא נמצאו נתונים.</div>';
+            } finally {
+                loadingBadge.style.display = 'none';
             }
         }
 
-        // פונקציה להצגת הנתונים על המסך בעברית
+        // הצגת המשחקים בעברית בתפריט הצד
         function renderGamesToScreen(apiData) {
             const gamesContainer = document.getElementById('games-container');
             
-            // אם ה-API מחזיר מערך ריק או שאין משחקים
             if (!apiData || !apiData.events || apiData.events.length === 0) {
-                gamesContainer.innerHTML = '<div style="margin-top: 30px;">אין משחקים פעילים כרגע ⚽</div>';
+                gamesContainer.innerHTML = '<div style="margin-top: 30px;">אין משחקים מתוכננים או פעילים כרגע ⚽</div>';
                 return;
             }
 
-            // לדוגמה, אם יש נתונים, נתרגם ונציג אותם (תצטרך להתאים למבנה מדויק של ה-JSON שלך)
             gamesContainer.innerHTML = ''; 
             apiData.events.forEach(game => {
+                // שולף את שמות הקבוצות מהאובייקט (מותאם למבנה סטנדרטי)
+                const home = game.homeTeam || game.home || 'קבוצת בית';
+                const away = game.awayTeam || game.away || 'קבוצת חוץ';
+                const league = game.league || game.tournament?.name || 'לא ידוע';
+
                 gamesContainer.innerHTML += `
-                    <div style="background: #21262d; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #30363d; text-align: right;">
-                        <strong>${game.homeTeam || 'קבוצת בית'} - ${game.awayTeam || 'קבוצת חוץ'}</strong>
-                        <div style="font-size: 12px; color: #8b949e; margin-top: 5px;">ליגה: ${game.league || 'לא ידוע'}</div>
+                    <div class="game-card">
+                        <strong>${home} - ${away}</strong>
+                        <div style="font-size: 12px; color: #8b949e; margin-top: 5px;">ליגה: ${league}</div>
                     </div>
                 `;
             });
         }
 
-        // הפעלה ראשונית של הדף
+        // הפעלה ראשונית כשהדף עולה
         window.onload = () => {
             fetchGamesData();
         };
