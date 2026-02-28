@@ -1,5 +1,5 @@
 const ApiService = {
-  // הפניה לשרת הפייתון המקומי שלך
+  // מפנה לשרת הפייתון המקומי שלך
   host: 'http://localhost:8000',
 
   async get(path) {
@@ -8,17 +8,19 @@ const ApiService = {
       if (!r.ok) throw new Error(r.status);
       return r.json();
     } catch (err) {
-      console.error("Network or Scraper Error:", err);
+      console.error("Scraper Proxy Error:", err);
       throw err;
     }
   },
 
   async getLive(sport) {
-    return this.get(`/api/v1/sport/${sport}/events/live`);
+    const ep = sport === 'soccer' ? 'football' : 'basketball';
+    return this.get(`/api/v1/sport/${ep}/events/live`);
   },
 
   async getScheduled(sport, date) {
-    return this.get(`/api/v1/sport/${sport}/scheduled-events/${date}`);
+    const ep = sport === 'soccer' ? 'football' : 'basketball';
+    return this.get(`/api/v1/sport/${ep}/scheduled-events/${date}`);
   },
 
   async getEventStats(id) {
