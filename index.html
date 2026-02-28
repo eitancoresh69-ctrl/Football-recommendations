@@ -75,4 +75,79 @@ body::before{ content:'';position:fixed;inset:0;pointer-events:none; background:
 .h2r{ text-align:center;font-family:'Space Mono',monospace;font-size:.78rem; font-weight:700;padding:3px 10px;border-radius:6px }
 .rh{background:rgba(0,255,136,.1);color:var(--green)} .rd{background:rgba(255,217,74,.1);color:var(--gold)} .ra{background:rgba(255,59,92,.1);color:var(--red)} .h2h-date{font-size:.58rem;color:var(--dim);margin-top:2px}
 .odds3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.ocard{ background:var(--bg2);border:1px solid var(--b2);border
+.ocard{ background:var(--bg2);border:1px solid var(--b2);border-radius:11px; padding:14px 10px;text-align:center;cursor:pointer;transition:.2s;position:relative }
+.ocard::before{ content:attr(data-l);position:absolute;top:6px;right:10px; font-size:.5rem;color:var(--dim);letter-spacing:.1em; text-transform:uppercase;font-family:'Space Mono',monospace }
+.ocard:hover{border-color:var(--cyan)} .ocard.pick{border-color:var(--cyan);background:rgba(0,240,255,.05)}
+.oval{font-family:'Space Mono',monospace;font-size:1.7rem;font-weight:700;color:var(--cyan);display:block;margin:8px 0 4px}
+.oprob{font-size:.68rem;color:var(--dim);display:block} .otrend{font-size:.6rem;display:block;margin-top:3px} .tu{color:var(--green)} .td2{color:var(--red)}
+.aibox{ background:linear-gradient(135deg,rgba(0,240,255,.04),rgba(0,255,136,.02)); border:1px solid rgba(0,240,255,.14);border-radius:11px;padding:14px;margin-bottom:14px }
+.aihdr{font-family:'Space Mono',monospace;font-size:.52rem;color:var(--dim); letter-spacing:.14em;margin-bottom:10px}
+.confrow{display:flex;align-items:center;gap:10px;margin-bottom:10px} .confl{font-size:.65rem;color:var(--dim)} .confbar{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.conff{height:100%;border-radius:3px;transition:width .8s ease} .confpct{font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700;min-width:34px;text-align:left}
+.airec{font-size:.8rem;color:var(--text);line-height:1.6} .hl{color:var(--cyan);font-weight:700}
+.krow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap} .kb{background:rgba(0,0,0,.4);border:1px solid var(--b2);border-radius:7px;padding:5px 11px;font-size:.68rem} .kb span{color:var(--cyan);font-family:'Space Mono',monospace;font-weight:700}
+.plist{display:flex;flex-direction:column;gap:5px}
+.prow{ display:flex;justify-content:space-between;align-items:center; padding:7px 11px;background:var(--bg2);border-radius:7px; font-size:.75rem;border:1px solid transparent }
+.pstat{font-size:.6rem;padding:2px 7px;border-radius:5px} .sinj{background:rgba(255,59,92,.15);color:var(--red)} .sdoubt{background:rgba(255,217,74,.12);color:var(--gold)}
+.csec{ background:var(--bg2);border:1px solid var(--b2);border-radius:11px; padding:13px;margin-bottom:14px }
+.ctitle{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim); letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px} .csec canvas{height:110px!important}
+.st{ font-family:'Space Mono',monospace;font-size:.58rem;color:var(--dim); letter-spacing:.12em;text-transform:uppercase;margin:12px 0 8px }
+.tgbtn{ width:100%;background:linear-gradient(135deg,#0088cc,#0070aa); color:#fff;border:none;padding:11px;border-radius:9px; font-family:'Heebo',sans-serif;font-weight:700;font-size:.82rem; cursor:pointer;margin-top:12px;transition:.2s }
+.tgbtn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--dim)}
+.spin{width:24px;height:24px;border:2px solid var(--dim2);border-top-color:var(--cyan);border-radius:50%;animation:sp .7s linear infinite} @keyframes sp{to{transform:rotate(360deg)}}
+.tsearch{ padding:8px;border-bottom:1px solid var(--border);flex-shrink:0 }
+.tsearch input{ width:100%;background:var(--bg2);border:1px solid var(--border); border-radius:8px;padding:7px 12px;color:var(--text);font-family:'Heebo',sans-serif; font-size:.8rem;outline:none;direction:rtl;transition:.2s }
+.tsearch input:focus{border-color:var(--cyan)} .tsearch input::placeholder{color:var(--dim)}
+.toast{ position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(16px); background:var(--panel2);border:1px solid var(--border);border-radius:9px; padding:9px 18px;font-size:.78rem;opacity:0;transition:.3s;z-index:100; pointer-events:none;white-space:nowrap }
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo">S·I·Q</div>
+    <button class="sicon on" id="sn-soccer" onclick="App.setSport('soccer')" title="כדורגל">⚽</button>
+    <button class="sicon" id="sn-basketball" onclick="App.setSport('basketball')" title="כדורסל">🏀</button>
+    <div class="sdot" id="sdot"></div>
+  </aside>
+  <div class="main">
+    <header class="hdr">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <h1>SportIQ <span>ULTRA</span></h1>
+        <div class="hpills">
+          <span class="pill pcyan" id="api-st">CONNECTING</span>
+          <span class="pill pgreen" id="mode-st" style="display:none">LIVE</span>
+          <span class="clk" id="clk">00:00:00</span>
+        </div>
+      </div>
+      <div class="stabs">
+        <button class="stab on" id="st-soccer" onclick="App.setSport('soccer')">⚽ כדורגל</button>
+        <button class="stab" id="st-basketball" onclick="App.setSport('basketball')">🏀 כדורסל</button>
+      </div>
+    </header>
+    <div class="grid">
+      <section class="lpanel">
+        <div class="phdr">
+          <div style="display:flex;align-items:center;gap:8px">
+            <h3 id="ptitle">משחקים</h3>
+            <span class="pill pgold" id="pbadge" style="font-size:.52rem">LOADING</span>
+          </div>
+          <button class="rbtn" onclick="App.refresh()">↻ רענן</button>
+        </div>
+        <div class="tsearch">
+          <input type="text" id="team-search" placeholder="🔍 חפש קבוצה..." oninput="App.filterMatches(this.value)">
+        </div>
+        <div class="mscroll" id="match-list">
+          <div class="ld"><div class="spin"></div><span>מחפש משחקים...</span></div>
+        </div>
+      </section>
+      <section class="rpanel">
+        <div class="ph" id="ph">
+          <div class="phicon">📊</div><h3 style="font-size:.9rem">מנוע AI Value Bet</h3><p>בחר משחק לניתוח מעמיק</p>
+        </div>
+        <div class="ac" id="ac" style="display:none">
+          <div class="atop">
+            <div class="amatch">
+              <h2 id="a-title">—</h2>
+              <div style="display:flex;gap:7px;align-items:center">
