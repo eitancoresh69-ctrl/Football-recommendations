@@ -73,7 +73,7 @@
             overflow: hidden;
         }
 
-        /* אזור ניתוח שמאלי / מרכזי */
+        /* אזור ניתוח (אמצע/שמאל) */
         .analysis-area {
             flex: 3;
             display: flex;
@@ -84,7 +84,7 @@
             color: #8b949e;
         }
 
-        /* סרגל צד ימני למשחקים */
+        /* סרגל צד למשחקים (ימין) */
         .sidebar {
             flex: 1;
             background-color: #161b22;
@@ -112,7 +112,6 @@
             margin-top: 20px;
         }
         
-        /* עיצוב כרטיסיית משחק ברשימה */
         .game-card {
             background: #21262d; 
             padding: 10px; 
@@ -147,13 +146,11 @@
         <div class="sidebar">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0;">משחקים</h3>
-                <span id="loading-badge" style="font-size: 12px; color: #e3b341; border: 1px solid #e3b341; padding: 2px 5px; border-radius: 5px;">LOADING</span>
+                <span id="loading-badge" style="font-size: 12px; color: #e3b341; border: 1px solid #e3b341; padding: 2px 5px; border-radius: 5px; display: none;">LOADING</span>
             </div>
             <input type="text" class="search-box" placeholder="חפש קבוצה...">
             
-            <div id="games-container" class="games-list">
-                מחפש משחקים...
-            </div>
+            <div id="games-container" class="games-list"></div>
         </div>
 
         <div class="analysis-area" id="analysis-container">
@@ -167,7 +164,6 @@
         const API_BASE = 'https://football-recommendations.onrender.com';
         let currentSportApiName = 'football';
 
-        // החלפת ענף ספורט
         function changeSport(sportStr) {
             currentSportApiName = sportStr;
             
@@ -178,43 +174,41 @@
             fetchGamesData();
         }
 
-        // משיכת הנתונים - קודם חי, ואם אין אז מתוכנן להיום
         async function fetchGamesData() {
             const gamesContainer = document.getElementById('games-container');
             const loadingBadge = document.getElementById('loading-badge');
             
-            gamesContainer.innerHTML = '<div style="margin-top: 30px;">מחפש משחקים... ⏳</div>';
+            // הודעה מותאמת כי Render לוקח זמן להתעורר לפעמים
+            gamesContainer.innerHTML = '<div style="margin-top: 30px;">מתחבר לשרת הנתונים... ⏳<br><span style="font-size: 11px; color: #6e7681;">(אם השרת במצב שינה, זה עשוי לקחת עד דקה)</span></div>';
             loadingBadge.style.display = 'block';
 
             try {
-                // 1. ניסיון למשוך משחקים חיים
+                // 1. קודם מנסים משחקים חיים
                 const liveUrl = `${API_BASE}/api/v1/sport/${currentSportApiName}/events/live`;
                 let response = await fetch(liveUrl);
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 let data = await response.json();
 
-                // 2. אם אין משחקים חיים, נמשוך משחקים מתוכננים להיום
+                // 2. אם אין משחקים חיים, מביאים מתוכננים להיום
                 if (!data || !data.events || data.events.length === 0) {
                     const today = new Date().toISOString().split('T')[0];
                     const scheduledUrl = `${API_BASE}/api/v1/sport/${currentSportApiName}/scheduled-events/${today}`;
                     
                     response = await fetch(scheduledUrl);
-                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     data = await response.json();
                 }
 
-                // רינדור הנתונים למסך
                 renderGamesToScreen(data);
 
             } catch (error) {
-                console.error('שגיאה במשיכת נתונים:', error);
-                gamesContainer.innerHTML = '<div style="color: #ff6b6b; margin-top: 30px;">שגיאת חיבור או שלא נמצאו נתונים.</div>';
+                console.error('שגיאה:', error);
+                gamesContainer.innerHTML = '<div style="color: #ff6b6b; margin-top: 30px;">שגיאת חיבור לשרת הנתונים.</div>';
             } finally {
                 loadingBadge.style.display = 'none';
             }
         }
 
-        // הצגת המשחקים בעברית בתפריט הצד
         function renderGamesToScreen(apiData) {
             const gamesContainer = document.getElementById('games-container');
             
@@ -225,7 +219,6 @@
 
             gamesContainer.innerHTML = ''; 
             apiData.events.forEach(game => {
-                // שולף את שמות הקבוצות מהאובייקט (מותאם למבנה סטנדרטי)
                 const home = game.homeTeam || game.home || 'קבוצת בית';
                 const away = game.awayTeam || game.away || 'קבוצת חוץ';
                 const league = game.league || game.tournament?.name || 'לא ידוע';
@@ -239,7 +232,6 @@
             });
         }
 
-        // הפעלה ראשונית כשהדף עולה
         window.onload = () => {
             fetchGamesData();
         };
