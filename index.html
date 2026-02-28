@@ -1,100 +1,78 @@
-/* ══════════════════════════════════════════
-   API SERVICE — Proxy via Render
-══════════════════════════════════════════ */
-const API = {
-  BASE: 'https://football-recommendations.onrender.com', // החיבור לשרת שלך!
-
-  async req(path) {
-    const r = await fetch(this.BASE + path);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.json();
-  },
-
-  live(sport)           { return this.req(`/api/v1/sport/${sport}/events/live`); },
-  sched(sport, date)    { return this.req(`/api/v1/sport/${sport}/scheduled-events/${date}`); },
-  stats(id)             { return this.req(`/api/v1/event/${id}/statistics`).catch(()=>null); },
-  lineups(id)           { return this.req(`/api/v1/event/${id}/lineups`).catch(()=>null); },
-  h2h(id)               { return this.req(`/api/v1/event/${id}/h2h`).catch(()=>null); },
-  teamEvents(teamId)    { return this.req(`/api/v1/team/${teamId}/events/last/0`).catch(()=>null); },
-};
-
-// ... השאר את const AI ו-const FAKE ללא שינוי ...
-
-// בתוך const App = { ... } ודא שהקוד הזה מחליף את המקורי:
-  TARGET_LEAGUES: [
-    'Premier League', 'LaLiga', 'Ligue 1', 'Serie A',
-    'Ligat HaAl', 'State Cup', 'Toto Cup',
-    'NBA', 'Super League', 'National League'
-  ],
-
-  isTargetLeague(ev) {
-    const lg = ev.tournament?.name || ev.league?.name || '';
-    const ctry = ev.tournament?.category?.name || '';
-    return this.TARGET_LEAGUES.some(l => lg.includes(l)) || ctry.toLowerCase() === 'israel';
-  },
-
-  async refresh() {
-    this.setStatus('SYNCING', null);
-    try {
-      const sport = this.sport === 'soccer' ? 'football' : 'basketball';
-      const live = await API.live(sport);
-      const evs = (live?.events || []).filter(e => this.isTargetLeague(e));
-      if (evs.length > 0) {
-        this.all = evs.map(e => this.cook(e, true));
-        this.usingFake = false;
-        this.setMode(true);
-        this.setStatus('LIVE', 'green');
-      } else {
-        await this.upcoming(sport);
-      }
-    } catch(e) {
-      try {
-        const sport = this.sport === 'soccer' ? 'football' : 'basketball';
-        await this.upcoming(sport);
-      } catch(e2) {
-        this.loadFake();
-      }
-    }
-    this.shown = [...this.all];
-    this.renderList();
-    if (this.sel !== null && this.sel < this.shown.length) {
-      this.select(this.sel, true);
-    }
-  },
-
-  async upcoming(sport) {
-    const today = new Date();
-    let allFuture = [];
-    let loaded = false;
-
-    for (let i = 0; i <= 7; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + i);
-      const ds = d.toISOString().split('T')[0];
-      try {
-        const data = await API.sched(sport, ds);
-        const evs = (data?.events || []).filter(e => this.isTargetLeague(e));
-        if (evs.length > 0) {
-          allFuture = allFuture.concat(evs);
-          if (allFuture.length >= 5) {
-            this.all = allFuture.slice(0, 30).map(e => this.cook(e, false));
-            this.usingFake = false;
-            this.setMode(false);
-            this.setStatus(i===0 ? 'TODAY' : `+${i}D`, 'cyan');
-            loaded = true;
-            break;
-          }
-        }
-      } catch(e) {}
-    }
-
-    if (!loaded && allFuture.length > 0) {
-        this.all = allFuture.slice(0, 30).map(e => this.cook(e, false));
-        this.usingFake = false;
-        this.setMode(false);
-        this.setStatus('UPCOMING', 'cyan');
-        loaded = true;
-    }
-
-    if (!loaded) throw new Error('no events');
-  },
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SportIQ ULTRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root { --bg: #02040a; --bg2: #080e1a; --panel: #0c1220; --panel2: #111927; --border: rgba(0,240,255,0.08); --b2: rgba(255,255,255,0.05); --cyan: #00f0ff; --green: #00ff88; --red: #ff3b5c; --gold: #ffd94a; --text: #e8f4f8; --dim: #4a6070; --dim2: #1e2d3d; }
+*{box-sizing:border-box;margin:0;padding:0} html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Heebo',sans-serif;direction:rtl}
+body::before{ content:'';position:fixed;inset:0;pointer-events:none; background: radial-gradient(ellipse 70% 50% at 25% 0%,rgba(0,240,255,0.04) 0%,transparent 60%), radial-gradient(ellipse 50% 40% at 80% 100%,rgba(0,255,136,0.03) 0%,transparent 50%); }
+.shell{display:grid;grid-template-columns:60px 1fr;height:100vh;position:relative;z-index:1}
+.sidebar{ background:#000;border-left:1px solid var(--border); display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px }
+.logo{ font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700; color:var(--cyan);writing-mode:vertical-rl;transform:rotate(180deg); letter-spacing:.15em;margin-bottom:20px }
+.sicon{ width:42px;height:42px;border-radius:10px;border:1px solid transparent; background:none;font-size:1.2rem;cursor:pointer;display:flex; align-items:center;justify-content:center;opacity:.3;transition:.2s;color:#fff }
+.sicon:hover{opacity:.7;background:rgba(255,255,255,.04)}
+.sicon.on{opacity:1;border-color:var(--cyan);background:rgba(0,240,255,.08);box-shadow:0 0 12px rgba(0,240,255,.2)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--green); box-shadow:0 0 8px var(--green);margin-top:auto;margin-bottom:8px; animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.main{display:flex;flex-direction:column;padding:16px 18px;gap:14px;overflow:hidden;min-width:0}
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr h1{font-family:'Space Mono',monospace;font-size:1.25rem;font-weight:700} .hdr h1 span{color:var(--cyan)}
+.hpills{display:flex;align-items:center;gap:8px}
+.pill{ font-family:'Space Mono',monospace;font-size:.58rem;padding:3px 10px; border-radius:20px;letter-spacing:.08em;border:1px solid; }
+.pcyan{color:var(--cyan);border-color:rgba(0,240,255,.3);background:rgba(0,240,255,.08)}
+.pgreen{color:var(--green);border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.08)}
+.pred{color:var(--red);border-color:rgba(255,59,92,.3);background:rgba(255,59,92,.08)}
+.pgold{color:var(--gold);border-color:rgba(255,217,74,.3);background:rgba(255,217,74,.1)}
+.clk{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--dim)}
+.stabs{display:flex;gap:4px;background:rgba(0,0,0,.5);border:1px solid var(--border);padding:4px;border-radius:10px}
+.stab{ padding:5px 14px;border-radius:7px;border:none;background:none; color:var(--dim);font-family:'Heebo',sans-serif;font-size:.82rem; font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap }
+.stab:hover{color:var(--text)} .stab.on{background:var(--cyan);color:#000;font-weight:800}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:14px;flex:1;overflow:hidden;min-height:0}
+.lpanel{ background:var(--panel);border:1px solid var(--border);border-radius:16px; display:flex;flex-direction:column;overflow:hidden;min-height:0 }
+.phdr{ padding:14px 16px 10px;border-bottom:1px solid var(--border); display:flex;align-items:center;justify-content:space-between;flex-shrink:0 }
+.phdr h3{font-size:.82rem;font-weight:700;letter-spacing:.02em}
+.rbtn{ background:none;border:1px solid var(--border);border-radius:7px; color:var(--dim);font-size:.65rem;padding:3px 9px;cursor:pointer; transition:.2s;font-family:'Heebo',sans-serif }
+.rbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+.mscroll{flex:1;overflow-y:auto;padding:8px} .mscroll::-webkit-scrollbar{width:3px} .mscroll::-webkit-scrollbar-thumb{background:var(--dim2);border-radius:2px}
+.mc{ background:var(--panel2);border:1px solid transparent;border-radius:11px; padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:.18s }
+.mc:hover{border-color:rgba(0,240,255,.2)} .mc.on{border-color:var(--cyan);background:rgba(0,240,255,.04);box-shadow:0 0 16px rgba(0,240,255,.07)}
+.mc-lg{font-size:.6rem;color:var(--cyan);font-weight:600;letter-spacing:.04em;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.mc-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;margin-bottom:7px}
+.mc-tn{font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mc-tn.away{text-align:left}
+.mc-score{ background:rgba(0,0,0,.5);border:1px solid var(--border); border-radius:7px;padding:4px 9px;font-family:'Space Mono',monospace; font-size:.85rem;font-weight:700;text-align:center;min-width:48px }
+.mc-foot{display:flex;align-items:center;justify-content:space-between}
+.mc-time{font-family:'Space Mono',monospace;font-size:.58rem;display:flex;align-items:center;gap:4px} .mc-time.live{color:var(--red)} .mc-time.sched{color:var(--gold)}
+.probbar{height:3px;border-radius:2px;background:var(--dim2);margin-top:6px;display:flex;overflow:hidden}
+.pbh{background:var(--green)} .pbd{background:var(--gold);opacity:.7} .pba{background:var(--red);opacity:.7}
+.vbadge{font-size:.52rem;padding:2px 6px;border-radius:6px;font-weight:700;letter-spacing:.06em}
+.vhot{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.25)} .vedge{background:rgba(255,217,74,.12);color:var(--gold);border:1px solid rgba(255,217,74,.2)}
+.rpanel{ background:var(--panel);border:1px solid var(--border);border-radius:16px; display:flex;flex-direction:column;overflow:hidden;min-height:0 }
+.ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--dim)}
+.phicon{font-size:2.5rem;opacity:.25;animation:fl 3s ease-in-out infinite} @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.ph p{font-size:.8rem}
+.ac{display:flex;flex-direction:column;height:100%;min-height:0} .atop{padding:16px 18px 0;flex-shrink:0}
+.amatch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px} .amatch h2{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700}
+.atabrow{display:flex;gap:2px;border-bottom:1px solid var(--border)}
+.atab{ background:none;border:none;color:var(--dim);font-family:'Heebo',sans-serif; font-size:.78rem;font-weight:600;padding:7px 12px;cursor:pointer;position:relative;transition:.15s }
+.atab::after{ content:'';position:absolute;bottom:-1px;left:0;right:0; height:2px;background:var(--cyan);transform:scaleX(0);transition:.2s }
+.atab.on{color:var(--cyan)} .atab.on::after{transform:scaleX(1)} .atab:hover:not(.on){color:var(--text)}
+.abody{flex:1;overflow-y:auto;padding:14px 18px} .abody::-webkit-scrollbar{width:3px} .abody::-webkit-scrollbar-thumb{background:var(--dim2);border-radius:2px}
+.tc{display:none} .tc.on{display:block}
+.sg3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px} .sg2{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px} .sg4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.sc{ background:var(--bg2);border:1px solid var(--b2);border-radius:9px; padding:11px 13px }
+.sc label{display:block;font-size:.58rem;color:var(--dim);letter-spacing:.04em;margin-bottom:3px;text-transform:uppercase}
+.sc b{font-size:1rem;font-family:'Space Mono',monospace;color:var(--text)}
+.sc.ca{border-right:3px solid var(--cyan)} .sc.cg{border-right:3px solid var(--green)} .sc.co{border-right:3px solid var(--gold)} .sc.cr{border-right:3px solid var(--red)}
+.form-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap} .form-label{font-size:.72rem;color:var(--dim);min-width:80px;font-weight:600}
+.fb{ width:26px;height:26px;border-radius:6px;display:flex;align-items:center; justify-content:center;font-size:.7rem;font-weight:700;font-family:'Space Mono',monospace; cursor:default;transition:.15s }
+.fw{background:rgba(0,255,136,.2);color:var(--green);border:1px solid rgba(0,255,136,.4)} .fd{background:rgba(255,217,74,.15);color:var(--gold);border:1px solid rgba(255,217,74,.3)} .fl{background:rgba(255,59,92,.18);color:var(--red);border:1px solid rgba(255,59,92,.35)}
+.h2h-row{ display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px; background:var(--bg2);border:1px solid var(--b2);border-radius:8px; padding:7px 11px;margin-bottom:6px;font-size:.75rem }
+.h2r{ text-align:center;font-family:'Space Mono',monospace;font-size:.78rem; font-weight:700;padding:3px 10px;border-radius:6px }
+.rh{background:rgba(0,255,136,.1);color:var(--green)} .rd{background:rgba(255,217,74,.1);color:var(--gold)} .ra{background:rgba(255,59,92,.1);color:var(--red)} .h2h-date{font-size:.58rem;color:var(--dim);margin-top:2px}
+.odds3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.ocard{ background:var(--bg2);border:1px solid var(--b2);border
