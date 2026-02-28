@@ -1,23 +1,24 @@
 const ApiService = {
-  key:  '480d7b8455mshb4ee5606f0a42a1p10a646jsn64b65efdb148',
-  host: 'sportapi7.p.rapidapi.com',
+  // הפניה לשרת הפייתון המקומי שלך
+  host: 'http://localhost:8000',
 
   async get(path) {
-    const r = await fetch(`https://${this.host}${path}`, {
-      headers: { 'x-rapidapi-key': this.key, 'x-rapidapi-host': this.host }
-    });
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
+    try {
+      const r = await fetch(`${this.host}${path}`);
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    } catch (err) {
+      console.error("Network or Scraper Error:", err);
+      throw err;
+    }
   },
 
   async getLive(sport) {
-    const ep = sport === 'soccer' ? 'football' : 'basketball';
-    return this.get(`/api/v1/sport/${ep}/events/live`);
+    return this.get(`/api/v1/sport/${sport}/events/live`);
   },
 
   async getScheduled(sport, date) {
-    const ep = sport === 'soccer' ? 'football' : 'basketball';
-    return this.get(`/api/v1/sport/${ep}/scheduled-events/${date}`);
+    return this.get(`/api/v1/sport/${sport}/scheduled-events/${date}`);
   },
 
   async getEventStats(id) {
