@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# מאפשר לאתר שלך (שמריץ את app.js) למשוך מידע מהשרת בלי שגיאות אבטחה (CORS)
+# מאפשר לאתר שלך למשוך מידע מהשרת בלי שגיאות אבטחה (CORS)
 app.add_middleware(
     CORSMiddleware, 
     allow_origins=["*"], 
@@ -20,18 +20,14 @@ HEADERS = {
     "Accept": "*/*",
     "Origin": "https://www.sofascore.com",
     "Referer": "https://www.sofascore.com/",
-    "Accept-Language": "en-US,en;q=0.9" # מביא שמות באנגלית כדי לא לשבור תאימות
+    "Accept-Language": "en-US,en;q=0.9"
 }
 
 @app.get("/api/v1/{path:path}")
 def proxy_sofascore(path: str):
-    """
-    פונקציה שתופסת כל בקשה מהאתר שלך ומעבירה אותה ישירות ל-SofaScore
-    """
     url = f"{SOFASCORE_BASE}/{path}"
     try:
         response = requests.get(url, headers=HEADERS, timeout=10)
-        # במידה ואין נתונים או שיש שגיאה, מחזירים אובייקט ריק כדי לא להקריס את האתר
         if response.status_code != 200:
             return {}
         return response.json()
