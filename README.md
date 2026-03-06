@@ -1,43 +1,73 @@
-# ⚽ SportIQ ULTRA — AI Betting Intelligence
+# ⚡ Quick Start - SportIQ ULTRA
 
-מנוע ניתוח ספורט בזמן אמת עם AI לזיהוי Value Bets.
+**Get started in 5 minutes!**
 
-## 🚀 הפעלה
-
-פתח את `index.html` בדפדפן. לא נדרש שרת.
-
-## 📁 מבנה הפרויקט
-
-```
-├── index.html        — מבנה הממשק
-├── style.css         — עיצוב מלא (dark theme)
-├── api-service.js    — חיבור ל-SportAPI (RapidAPI)
-├── logic-engine.js   — מנוע AI: הסתברויות, odds, Kelly
-└── app.js            — לוגיקה ראשית + UI
+## 1. Clone Repository
+```bash
+git clone https://github.com/yourusername/SportIQ-ULTRA.git
+cd SportIQ-ULTRA
 ```
 
-## ⚙️ הגדרות
-
-ב-`app.js` עדכן:
-```js
-tgToken: 'YOUR_BOT_TOKEN',   // טוקן מ-BotFather
-chatId:  'YOUR_CHAT_ID',     // ID מ-UserInfoBot
+## 2. Install Dependencies
+```bash
+pip install -r requirements.txt
 ```
 
-ב-`api-service.js` עדכן (אם צריך):
-```js
-key: 'YOUR_RAPIDAPI_KEY',
+## 3. Configure API Key
+```bash
+mkdir -p .streamlit
+echo 'GEMINI_API_KEY = "your-api-key"' > .streamlit/secrets.toml
 ```
 
-## 🎯 פיצ'רים
+Get free API key: https://makersuite.google.com/app/apikey
 
-- **נתונים חיים** — שידורים חיים + משחקים עתידיים (אוטומטי)
-- **AI Value Bet** — זיהוי יתרון סטטיסטי בכל משחק
-- **Kelly Criterion** — חישוב גודל הימור אופטימלי
-- **H2H** — היסטוריית מפגשים ישירים
-- **הרכב** — פצועים ונבדלים
-- **טלגרם** — שליחת ניתוח מלא לבוט
+## 4. Run Application
+```bash
+streamlit run app.py
+```
 
-## 🔌 API
+## 5. Open Browser
+Visit: `http://localhost:8501`
 
-משתמש ב-[SportAPI7 על RapidAPI](https://rapidapi.com/sportapi7/api/sportapi7).
+## That's It! 🎉
+
+You now have:
+- 📊 Live sports odds
+- 🧠 AI-powered analysis
+- ⚔️ Head-to-head history
+- 📈 Team statistics
+- 🚑 Injury reports
+
+## Features by Tab
+
+**📊 Data Tab**
+- Real-time odds (1x2, Over/Under)
+- Team form (last 5 games)
+- Goal statistics
+
+**⚔️ H2H Tab**
+- Last 10 head-to-head matches
+- Win/Draw/Loss summary
+- Score comparisons
+
+**🧠 AI Tab**
+- Gemini-powered analysis
+- Value betting detection
+- Confidence levels
+
+**📈 Stats Tab**
+- Detailed team metrics
+- Home/Away splits
+- Win rate analysis
+
+## Support
+See README.md for full documentation
+See INSTALLATION.md for detailed setup
+
+## Tips
+- Change date range in sidebar to find games
+- AI analysis takes 2-3 seconds
+- Data updates every 30 minutes (cache)
+- Works best with Chrome or Firefox
+
+Enjoy! 🚀
