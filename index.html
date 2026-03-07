@@ -238,26 +238,28 @@ with st.sidebar:
     st.markdown("<h2 style='text-align:center; color: #00f0ff;'>🎯 בחר משחק</h2>", unsafe_allow_html=True)
     st.divider()
     
-    # בחירת ספורט
-    sport_choice = st.radio(
-        "🏅 ספורט:",
-        ["כדורגל ⚽", "כדורסל 🏀"],
-        horizontal=True,
-        key="sport_choice"
-    )
-    st.session_state.selected_sport = sport_choice
+    # Sport selection
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("⚽ כדורגל", use_container_width=True, key="btn_football"):
+            st.session_state.selected_sport = "כדורגל ⚽"
+    with col2:
+        if st.button("🏀 כדורסל", use_container_width=True, key="btn_basketball"):
+            st.session_state.selected_sport = "כדורסל 🏀"
+    
+    sport_choice = st.session_state.get("selected_sport", "כדורגל ⚽")
     
     st.divider()
     
-    # טעינת משחקים
+    # Load games
     with st.spinner("🔄 טוען משחקים..."):
         games_by_date = api.fetch_games_for_dates(sport=sport_choice, days=7)
     
     if not games_by_date:
-        st.error("❌ לא נמצאו משחקים")
+        st.error("❌ לא נמצאו משחקים בליגות המטרה")
         st.stop()
     
-    # בחירת תאריכים
+    # Date range selection
     dates_list = sorted(list(games_by_date.keys()))
     col_start, col_end = st.columns(2)
     
@@ -268,7 +270,7 @@ with st.sidebar:
     
     st.divider()
     
-    # סינון משחקים
+    # Filter games
     filtered_games = []
     for date_str in dates_list:
         if start_date <= date_str <= end_date:
@@ -277,15 +279,17 @@ with st.sidebar:
                     filtered_games.append(game)
     
     if not filtered_games:
-        st.warning("⚠️ אין משחקים")
+        st.warning("⚠️ אין משחקים בתאריכים הנבחרים")
         st.stop()
     
     st.markdown(f"**📅 {len(filtered_games)} משחקים זמינים**")
+    st.divider()
     
-    # ✅ BEAUTIFUL GAME CARDS
+    # Game cards with Hebrew names
     selected_game = None
     
     for i, g in enumerate(filtered_games):
+        # Calculate time until game
         game_time = api.get_israel_time(g.get('start_timestamp', 0))
         utc_now = datetime.utcnow()
         is_dst = (utc_now.month in [3,4,5,6,7,8,9,10]) and utc_now.day > 20
@@ -295,30 +299,44 @@ with st.sidebar:
         hours_left = time_diff.total_seconds() / 3600
         
         time_str = g['time']
-        home = g.get('home_he', g['home'])
-        away = g.get('away_he', g['away'])
+        home_he = g.get('home_he', g['home'])
+        away_he = g.get('away_he', g['away'])
         league_he = g.get('league_he', g['league'][:15])
         
-        card_bg = "#0a1825" if i % 2 == 0 else "#0d1f2d"
-        
-        card_html = f"""<div style='background: linear-gradient(135deg, {card_bg} 0%, rgba(0,240,255,0.05) 100%);border: 2px solid rgba(0,240,255,0.3);border-radius: 12px;padding: 14px;margin-bottom: 10px;'><div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;'><span style='color: #ffd94a; font-weight: 700; font-size: 0.85rem;'>🕐 {time_str}</span><span style='color: #00ff88; font-weight: 600; font-size: 0.7rem;'>⏳ {hours_left:.1f}h</span></div><div style='display: flex;justify-content: space-between;align-items: center;margin-bottom: 8px;'><span style='color: #e8f4f8;font-weight: 600;font-size: 0.9rem;flex: 1;text-align: right;margin-right: 8px;'>{home}</span><span style='color: #00f0ff;font-size: 0.8rem;font-weight: 700;'>⚔️</span><span style='color: #e8f4f8;font-weight: 600;font-size: 0.9rem;flex: 1;text-align: left;margin-left: 8px;'>{away}</span></div><div style='color: #a8b2c1;font-size: 0.7rem;border-top: 1px solid rgba(0,240,255,0.15);padding-top: 6px;'>📍 {league_he}</div></div>"""
+        # Beautiful card
+        card_html = f"""
+        <div style='
+            background: linear-gradient(135deg, rgba(0,60,100,0.4) 0%, rgba(0,240,255,0.1) 100%);
+            border: 2px solid rgba(0,240,255,0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+        '>
+            <div style='display: flex; justify-content: space-between; margin-bottom: 8px;'>
+                <span style='color: #ffd94a; font-weight: 700; font-size: 0.85rem;'>🕐 {time_str}</span>
+                <span style='color: #00ff88; font-weight: 600; font-size: 0.7rem;'>⏳ {hours_left:.1f}h</span>
+            </div>
+            <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;'>
+                <span style='color: #e8f4f8; font-weight: 600; font-size: 0.9rem; flex: 1; text-align: right; margin-right: 6px;'>{home_he}</span>
+                <span style='color: #00f0ff; font-weight: 700;'>⚔️</span>
+                <span style='color: #e8f4f8; font-weight: 600; font-size: 0.9rem; flex: 1; text-align: left; margin-left: 6px;'>{away_he}</span>
+            </div>
+            <div style='color: #a8b2c1; font-size: 0.7rem; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 6px;'>📍 {league_he}</div>
+        </div>
+        """
         
         st.markdown(card_html, unsafe_allow_html=True)
         
-        if st.button(
-            label=f"בחר {home} vs {away}",
-            key=f"game_{g['id']}_{i}",
-            use_container_width=True,
-            help=f"{league_he} • {time_str}"
-        ):
+        if st.button(f"בחר", key=f"game_{g['id']}_{i}", use_container_width=True):
             selected_game = g
     
+    # Default selection
     if selected_game is None:
         selected_game = filtered_games[0]
     
     st.divider()
     
-    # ✅ Selected game info
+    # Selected game info
     time_until = api.get_israel_time(selected_game.get('start_timestamp', 0))
     utc_now = datetime.utcnow()
     is_dst = (utc_now.month in [3,4,5,6,7,8,9,10]) and utc_now.day > 20
@@ -331,7 +349,24 @@ with st.sidebar:
     away_he = selected_game.get('away_he', selected_game['away'])
     league_he = selected_game.get('league_he', selected_game['league'])
     
-    st.markdown(f"""<div style='background: linear-gradient(135deg, rgba(0,240,255,0.15) 0%, rgba(0,255,136,0.05) 100%);border: 2px solid #00f0ff;border-radius: 12px;padding: 14px;'><div style='font-size: 0.8rem; color: #a8b2c1; margin-bottom: 6px;'>🎯 משחק נבחר</div><div style='display: flex;justify-content: space-between;align-items: center;margin-bottom: 8px;'><span style='color: #e8f4f8; font-weight: 700; font-size: 1rem;'>{home_he}</span><span style='color: #00f0ff; font-weight: 700;'>⚔️</span><span style='color: #e8f4f8; font-weight: 700; font-size: 1rem;'>{away_he}</span></div><div style='color: #a8b2c1; font-size: 0.75rem; margin-bottom: 8px;'>📍 {league_he}</div><div style='color: #00ff88; font-size: 0.75rem; font-weight: 700;'>⏰ בעוד {hours:.1f} שעות</div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""
+        <div style='
+            background: linear-gradient(135deg, rgba(0,240,255,0.2) 0%, rgba(0,255,136,0.1) 100%);
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            padding: 12px;
+        '>
+            <div style='font-size: 0.8rem; color: #a8b2c1; margin-bottom: 8px;'>🎯 משחק נבחר</div>
+            <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;'>
+                <span style='color: #e8f4f8; font-weight: 700; font-size: 1rem;'>{home_he}</span>
+                <span style='color: #00f0ff; font-weight: 700;'>⚔️</span>
+                <span style='color: #e8f4f8; font-weight: 700; font-size: 1rem;'>{away_he}</span>
+            </div>
+            <div style='color: #a8b2c1; font-size: 0.75rem; margin-bottom: 6px;'>📍 {league_he}</div>
+            <div style='color: #00ff88; font-size: 0.75rem; font-weight: 700;'>⏰ בעוד {hours:.1f} שעות</div>
+        </div>
+    """, unsafe_allow_html=True)
+
 
 # הטעינת נתונים עמוקים
 st.markdown("### 🔄 טוען נתוני עומק...")
